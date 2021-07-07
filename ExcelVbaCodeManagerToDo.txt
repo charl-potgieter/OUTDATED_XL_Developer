@@ -1,0 +1,4 @@
+Imported / refreshed class modules appear incorrectly as normal modules.  Similar behaviout noted here:
+https://github.com/VBA-tools/VBA-Web/issues/24
+Ok, there have been a few more reported incidents of this and it does not appear to be limited to 64-bit Excel. The issue appears to be line endings. When extracted from the downloaded zip file, the line endings are UNIX-style (LF or \n) and from my local files they are Windows-style (CR + LF or \r\n). After switching the downloaded file with Windows-style line endings the file imported correctly as a Class. I'll look into how this can be resolved.
+https://newtonexcelbach.com/2015/11/10/importing-text-files-unix-format/
