@@ -1,5 +1,0 @@
-Any way I can get the pop up keyboard menu to work across multiple addins?
-
-Create a programatic build of keyboard shortcut menu giving users options of menus and levels
-
-Add menu item and ability to change shortcut key - similiar to name manager
