@@ -1,0 +1,16 @@
+<customUI xmlns= "http://schemas.microsoft.com/office/2009/07/customui">
+  <ribbon>
+    <tabs>
+      <tab id="DeveloperXL" label="Developer XL" insertAfterMso="TabDeveloper">
+
+        <group id="VbaTools" label="VBA tools">
+            <button id="customButton1" label="Refresh code libraries" size="large" onAction="RefreshCodeLibrariesInActiveWorkbookFromGithubSource" imageMso="Refresh" />
+            <button id="customButton2" label="List code libraries" size="large" onAction="ListGithubCodeLibraries" imageMso="ListCreateListForm" />
+            <button id="customButton3" label="Replace code libraries with selection" size="large" onAction="ReplaceGithubCodeLibrariesWithSelection" imageMso="ReplaceDialog" />
+            <button id="customButton4" label="Export active workbook code" size="large" onAction="ExportActiveWorkbookVbaCode" imageMso="Export" />
+        </group>
+
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
