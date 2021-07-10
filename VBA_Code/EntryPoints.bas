@@ -1,20 +1,8 @@
 Attribute VB_Name = "EntryPoints"
 Option Explicit
 
-Public Const gcsMenuName As String = "Code manager"
 
-Sub DisplayPopUpMenu()
-Attribute DisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "C\n14"
-
-    DeletePopUpMenu
-    CreatePopUpMenu
-    Application.CommandBars(gcsMenuName).ShowPopup
-
-End Sub
-
-
-
-Sub ExportActiveWorkbookVbaCode()
+Sub ExportActiveWorkbookVbaCode(Optional control As IRibbonControl)
 
     Dim wkb As Workbook
     Dim sVbaCodePath As String
@@ -32,7 +20,7 @@ Sub ExportActiveWorkbookVbaCode()
 End Sub
 
 
-Sub RefreshCodeLibrariesInActiveWorkbookFromGithubSource()
+Sub RefreshCodeLibrariesInActiveWorkbookFromGithubSource(Optional control As IRibbonControl)
 
     Dim sTargetDirectory As String
     Dim sTargetFileName As String
@@ -43,6 +31,13 @@ Sub RefreshCodeLibrariesInActiveWorkbookFromGithubSource()
     Dim wkb As Workbook
 
     Set wkb = ActiveWorkbook
+    If wkb.Name = ThisWorkbook.Name Then
+        MsgBox "Select another destination workbook.  " & _
+        "Not possible to import in this workbook "
+        Exit Sub
+    End If
+    
+    
     sTargetDirectory = Environ("Temp") & Application.PathSeparator & "Vba_Libraries"
     On Error Resume Next
     Kill sTargetDirectory & Application.PathSeparator & "*.*"
@@ -59,17 +54,18 @@ Sub RefreshCodeLibrariesInActiveWorkbookFromGithubSource()
         
         DeleteModule wkb, sModuleName
         DownloadFileFromUrl sUrl, sTargetFilePathAndName
+        ConvertTextFileUnixToWindowsLineFeeds sTargetFilePathAndName
         
     Next rngCell
     
     ImportVBAModules wkb, sTargetDirectory
-    MsgBox "Import complete"
+    MsgBox "Refresh complete"
 
 End Sub
 
 
 
-Sub ListGithubCodeLibraries()
+Sub ListGithubCodeLibraries(Optional control As IRibbonControl)
 
     Dim sht As Worksheet
     
@@ -84,7 +80,7 @@ Sub ListGithubCodeLibraries()
 End Sub
 
 
-Sub ReplaceGithubCodeLibrariesWithSelection()
+Sub ReplaceGithubCodeLibrariesWithSelection(Optional control As IRibbonControl)
 
     With ThisWorkbook.Sheets("StandardCodeLibraries")
         .Cells.EntireRow.Delete
