@@ -1,6 +1,13 @@
 Attribute VB_Name = "EntryPoints"
 Option Explicit
 
+Public Type TypeKeyboardMenuDetails
+    PopupCaptions() As String
+    ButtonCaption As String
+    SpreadsheetName As String
+    SubName As String
+End Type
+
 
 Sub ExportActiveWorkbookVbaCode(Optional control As IRibbonControl)
 
@@ -89,8 +96,19 @@ Sub ReplaceGithubCodeLibrariesWithSelection(Optional control As IRibbonControl)
     End With
     Application.CutCopyMode = False
     ThisWorkbook.Save
+    MsgBox ("Code libraries updated")
 
 End Sub
 
 
+Sub ShowPopupMenu()
+
+    Dim MenuDetails() As TypeKeyboardMenuDetails
+    Const PopupCaptionMenuName As String = "VbaMgrPopupCaptionMenu"
+    
+    ReadMenuDetails MenuDetails
+    GenerateMenu MenuDetails, PopupCaptionMenuName
+    Application.CommandBars(PopupCaptionMenuName).ShowPopup
+
+End Sub
 

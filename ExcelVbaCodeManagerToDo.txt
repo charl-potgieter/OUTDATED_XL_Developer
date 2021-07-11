@@ -1,0 +1,6 @@
+When generating VBA code --> before this happens need to delete any existing files in that folder (so that old modules do not remain)
+
+Create code to
+ - list PopupMenuconfiguraion
+ - Replace Configuration with Selection
+ - Change shortcut key

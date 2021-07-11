@@ -1,5 +1,6 @@
 Attribute VB_Name = "VbeProgramming"
 Option Explicit
+Option Private Module
 
 '------------------------------------------------------------------------------------------------------------------------
 '   Code inspired by Ron De Bruin and Chip Pearson:
