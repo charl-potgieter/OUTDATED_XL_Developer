@@ -28,8 +28,8 @@ Sub ReadMenuDetails(ByRef MenuDetails() As TypeKeyboardMenuDetails)
         iNumberOfColumnsInRow = WorksheetFunction.CountA(shtMenuDetails.Rows(iCurrentRowNumber))
         'Subtract 3 for ButtonCaption, spreadsheet and sub name included in each row
         iNumberOfPopupCaptionMenuItems = iNumberOfColumnsInRow - 3
-        ReDim MenuDetails(iCurrentRowNumber - 1).PopupCaptions(0 To iNumberOfPopupCaptionMenuItems - 1)
         
+        ReDim MenuDetails(iCurrentRowNumber - 1).PopupCaptions(0 To iNumberOfPopupCaptionMenuItems - 1)
         iCurrentColumnNumber = 1
         Do While iCurrentColumnNumber <= iNumberOfPopupCaptionMenuItems
             MenuDetails(iCurrentRowNumber - 1).PopupCaptions(iCurrentColumnNumber - 1) = shtMenuDetails.Cells(iCurrentRowNumber, iCurrentColumnNumber)
@@ -106,16 +106,16 @@ Function GetCurentPopUpItemName(ByRef MenuDetail As TypeKeyboardMenuDetails, _
 'Returns name as a concatenation of previous and current popup itms at current menu level
 'This is done to ensure unique popup menu names
 
-    Dim i As Integer
+    Dim I As Integer
     Const UniqueNamePrefix As String = "VbaCodeManager|" 'To Ensure no clash with existing commandbars
     
-    For i = LBound(MenuDetail.PopupCaptions) To CurrentPopIndex
-        If i = LBound(MenuDetail.PopupCaptions) Then
-            GetCurentPopUpItemName = UniqueNamePrefix & MenuDetail.PopupCaptions(i)
+    For I = LBound(MenuDetail.PopupCaptions) To CurrentPopIndex
+        If I = LBound(MenuDetail.PopupCaptions) Then
+            GetCurentPopUpItemName = UniqueNamePrefix & MenuDetail.PopupCaptions(I)
         Else
-            GetCurentPopUpItemName = GetCurentPopUpItemName & "|" & MenuDetail.PopupCaptions(i)
+            GetCurentPopUpItemName = GetCurentPopUpItemName & "|" & MenuDetail.PopupCaptions(I)
         End If
-    Next i
+    Next I
 
 End Function
 
