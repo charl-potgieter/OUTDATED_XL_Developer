@@ -4,58 +4,66 @@ Option Private Module
 
 
 
-Sub ReadMenuDetails(ByRef MenuDetails() As TypeKeyboardMenuDetails)
+Sub ReadMenuConfig(ByRef MenuItems() As TypeMenuConfig)
 'Each row in sheet MenuBuilder contains columns in below order
-' (a) Optional number of PopupCaption menu names
+' (a) A number of PopupCaption menu names (at least one)
 ' (b) ButtonCaption name
 ' (c) Name of spreadsheet containing the sub
 ' (d) Name of the sub being called
 
+    Dim shtMenuConfig As Worksheet
+    Dim NumberOfMenuItems As Integer
+    Dim NumberOfPopupMenuItems As Integer
+    Dim IndexOfCurrentMenuItem As Integer
+    Dim IndexOfCurrentPopupMenu As Integer
+    Dim CurrentMenuItem As TypeMenuConfig
+    Dim CellToRead As Range
 
-    Dim shtMenuDetails As Worksheet
-    Dim iNumberOfMenuItems As Integer
-    Dim iNumberOfColumnsInRow
-    Dim iNumberOfPopupCaptionMenuItems As Integer
-    Dim iCurrentColumnNumber As Integer
-    Dim iCurrentRowNumber As Integer
+    Set shtMenuConfig = ThisWorkbook.Worksheets("MenuConfig")
+    NumberOfMenuItems = shtMenuConfig.Range("A1").CurrentRegion.Rows.Count
+    ReDim MenuItems(0 To NumberOfMenuItems - 1)
     
-
-    Set shtMenuDetails = ThisWorkbook.Worksheets("MenuBuilder")
-    iNumberOfMenuItems = shtMenuDetails.Range("A1").CurrentRegion.Rows.Count
-    ReDim MenuDetails(0 To iNumberOfMenuItems - 1)
-    
-    For iCurrentRowNumber = 1 To iNumberOfMenuItems
-        iNumberOfColumnsInRow = WorksheetFunction.CountA(shtMenuDetails.Rows(iCurrentRowNumber))
-        'Subtract 3 for ButtonCaption, spreadsheet and sub name included in each row
-        iNumberOfPopupCaptionMenuItems = iNumberOfColumnsInRow - 3
+    For IndexOfCurrentMenuItem = 0 To (NumberOfMenuItems - 1)
         
-        ReDim MenuDetails(iCurrentRowNumber - 1).PopupCaptions(0 To iNumberOfPopupCaptionMenuItems - 1)
-        iCurrentColumnNumber = 1
-        Do While iCurrentColumnNumber <= iNumberOfPopupCaptionMenuItems
-            MenuDetails(iCurrentRowNumber - 1).PopupCaptions(iCurrentColumnNumber - 1) = shtMenuDetails.Cells(iCurrentRowNumber, iCurrentColumnNumber)
-            iCurrentColumnNumber = iCurrentColumnNumber + 1
+        Set CellToRead = shtMenuConfig.Cells(IndexOfCurrentMenuItem + 1, 1)
+        
+        'Subtract 3 for ButtonCaption, spreadsheet and sub name included in each row
+        NumberOfPopupMenuItems = WorksheetFunction.CountA(shtMenuConfig.Rows(IndexOfCurrentMenuItem + 1)) - 3
+        
+        ReDim CurrentMenuItem.PopupMenuCaptions(0 To NumberOfPopupMenuItems - 1)
+        IndexOfCurrentPopupMenu = 0
+        Do While (IndexOfCurrentPopupMenu + 1) <= NumberOfPopupMenuItems
+            CurrentMenuItem.PopupMenuCaptions(IndexOfCurrentPopupMenu) = CellToRead.Value
+            IndexOfCurrentPopupMenu = IndexOfCurrentPopupMenu + 1
+            Set CellToRead = CellToRead.Offset(0, 1)
         Loop
         
-        MenuDetails(iCurrentRowNumber - 1).ButtonCaption = shtMenuDetails.Cells(iCurrentRowNumber, iCurrentColumnNumber)
-        iCurrentColumnNumber = iCurrentColumnNumber + 1
-        MenuDetails(iCurrentRowNumber - 1).SpreadsheetName = shtMenuDetails.Cells(iCurrentRowNumber, iCurrentColumnNumber)
-        iCurrentColumnNumber = iCurrentColumnNumber + 1
-        MenuDetails(iCurrentRowNumber - 1).SubName = shtMenuDetails.Cells(iCurrentRowNumber, iCurrentColumnNumber)
+        CurrentMenuItem.ButtonCaption = CellToRead.Value
         
-    Next iCurrentRowNumber
+        Set CellToRead = CellToRead.Offset(0, 1)
+        CurrentMenuItem.SpreadsheetName = CellToRead.Value
+        
+        Set CellToRead = CellToRead.Offset(0, 1)
+        CurrentMenuItem.SubName = CellToRead.Value
+        
+        MenuItems(IndexOfCurrentMenuItem) = CurrentMenuItem
+        
+    Next IndexOfCurrentMenuItem
 
 End Sub
 
 
 
-Sub GenerateMenu(ByRef MenuDetails() As TypeKeyboardMenuDetails, ByVal PopupCaptionMenuName As String)
+Sub GenerateMenu(ByVal PopupCaptionMenuName As String, ByRef MenuConfig() As TypeMenuConfig)
 
     Dim cb As CommandBar
     Dim MenuCategory As CommandBarPopup
-    Dim MenuCategoryParent ' As CommandBarPopup
-    Dim MenuItem As CommandBarControl
-    Dim CurrentMenuIndex As Integer
-    Dim CurrentPopIndex As Integer
+    Dim MenuCategoryParent As Object
+    Dim LastPopUpMenuInCurrentMenuItem
+    Dim Button As CommandBarControl
+    Dim CurrentMenuItem As TypeMenuConfig
+    Dim IndexOfCurrentMenuItem As Integer
+    Dim IndexOfCurrentPopupMenu As Integer
     Dim sPopUpItemName
     
     
@@ -66,61 +74,64 @@ Sub GenerateMenu(ByRef MenuDetails() As TypeKeyboardMenuDetails, ByVal PopupCapt
     Set cb = Application.CommandBars.Add(Name:=PopupCaptionMenuName, Position:=msoBarPopup, _
                                      MenuBar:=False, Temporary:=True)
 
-    For CurrentMenuIndex = LBound(MenuDetails) To UBound(MenuDetails)
+    For IndexOfCurrentMenuItem = LBound(MenuConfig) To UBound(MenuConfig)
         
-        For CurrentPopIndex = LBound(MenuDetails(CurrentMenuIndex).PopupCaptions) To UBound(MenuDetails(CurrentMenuIndex).PopupCaptions)
+        CurrentMenuItem = MenuConfig(IndexOfCurrentMenuItem)
+        
+        For IndexOfCurrentPopupMenu = LBound(CurrentMenuItem.PopupMenuCaptions) To UBound(CurrentMenuItem.PopupMenuCaptions)
             
-            sPopUpItemName = GetCurentPopUpItemName(MenuDetails(CurrentMenuIndex), CurrentPopIndex)
-           
+            sPopUpItemName = GetCurentPopUpItemName(PopupCaptionMenuName, _
+                CurrentMenuItem, IndexOfCurrentPopupMenu)
+               
             Select Case True
             
                 Case CommandBarPopUpExists(sPopUpItemName)
                 'Do Nothing
             
-                Case CurrentPopIndex = LBound(MenuDetails(CurrentMenuIndex).PopupCaptions)
+                Case IndexOfCurrentPopupMenu = LBound(CurrentMenuItem.PopupMenuCaptions)
                 'First layer - add to commandbar
                     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
-                    MenuCategory.Caption = MenuDetails(CurrentMenuIndex).PopupCaptions(CurrentPopIndex)
+                    MenuCategory.Caption = CurrentMenuItem.PopupMenuCaptions(IndexOfCurrentPopupMenu)
                     MenuCategory.CommandBar.Name = sPopUpItemName
                 Case Else
-                    Set MenuCategoryParent = GetMenuCategoryPopupParent(cb, sPopUpItemName)
+                    Set MenuCategoryParent = GetMenuCategoryPopupParent(sPopUpItemName)
                     Set MenuCategory = MenuCategoryParent.Controls.Add(Type:=msoControlPopup)
-                    MenuCategory.Caption = MenuDetails(CurrentMenuIndex).PopupCaptions(CurrentPopIndex)
+                    MenuCategory.Caption = CurrentMenuItem.PopupMenuCaptions(IndexOfCurrentPopupMenu)
                     MenuCategory.CommandBar.Name = sPopUpItemName
             End Select
            
             
-        Next CurrentPopIndex
+        Next IndexOfCurrentPopupMenu
         
-        Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-        MenuItem.Caption = MenuDetails(CurrentMenuIndex).ButtonCaption
-        MenuItem.OnAction = "'" & MenuDetails(CurrentMenuIndex).SpreadsheetName & _
-            "'!" & MenuDetails(CurrentMenuIndex).SubName
+        Set LastPopUpMenuInCurrentMenuItem = GetLastPopUpMenu(PopupCaptionMenuName, MenuConfig(IndexOfCurrentMenuItem))
+        Set Button = MenuCategory.Controls.Add(Type:=msoControlButton)
+        Button.Caption = MenuConfig(IndexOfCurrentMenuItem).ButtonCaption
+        Button.OnAction = "'" & MenuConfig(IndexOfCurrentMenuItem).SpreadsheetName & _
+            "'!" & MenuConfig(IndexOfCurrentMenuItem).SubName
         
-    Next CurrentMenuIndex
+    Next IndexOfCurrentMenuItem
 
 End Sub
 
-Function GetCurentPopUpItemName(ByRef MenuDetail As TypeKeyboardMenuDetails, _
-    ByVal CurrentPopIndex As Integer) As String
+Function GetCurentPopUpItemName(ByVal PopupCaptionMenuName As String, _
+    ByRef MenuConfig As TypeMenuConfig, ByVal CurrentPopIndex As Integer) As String
 'Returns name as a concatenation of previous and current popup itms at current menu level
 'This is done to ensure unique popup menu names
 
-    Dim I As Integer
-    Const UniqueNamePrefix As String = "VbaCodeManager|" 'To Ensure no clash with existing commandbars
+    Dim i As Integer
     
-    For I = LBound(MenuDetail.PopupCaptions) To CurrentPopIndex
-        If I = LBound(MenuDetail.PopupCaptions) Then
-            GetCurentPopUpItemName = UniqueNamePrefix & MenuDetail.PopupCaptions(I)
+    For i = LBound(MenuConfig.PopupMenuCaptions) To CurrentPopIndex
+        If i = LBound(MenuConfig.PopupMenuCaptions) Then
+            GetCurentPopUpItemName = PopupCaptionMenuName & "|" & MenuConfig.PopupMenuCaptions(i)
         Else
-            GetCurentPopUpItemName = GetCurentPopUpItemName & "|" & MenuDetail.PopupCaptions(I)
+            GetCurentPopUpItemName = GetCurentPopUpItemName & "|" & MenuConfig.PopupMenuCaptions(i)
         End If
-    Next I
+    Next i
 
 End Function
 
 
-Function GetMenuCategoryPopupParent(ByVal cb As CommandBar, ByVal sMenuCategoryName) As Object
+Function GetMenuCategoryPopupParent(ByVal sMenuCategoryName) As Object
 'In this menu the popup names are set as Prefix|Level1Name|Level2Name|... etc
 
     Dim sParentName As String
@@ -129,6 +140,21 @@ Function GetMenuCategoryPopupParent(ByVal cb As CommandBar, ByVal sMenuCategoryN
     iPositionOfLastDelimiter = InStrRev(sMenuCategoryName, "|")
     sParentName = Left(sMenuCategoryName, iPositionOfLastDelimiter - 1)
     Set GetMenuCategoryPopupParent = Application.CommandBars(sParentName)
+
+End Function
+
+Function GetLastPopUpMenu(ByVal PopupCaptionMenuName As String, MenuDetail As TypeMenuConfig) As Object
+'In this menu the popup names are set as Prefix|Level1Name|Level2Name|... etc
+
+    Dim sLastPopupMenuName As String
+    Dim i As Integer
+    
+    sLastPopupMenuName = PopupCaptionMenuName
+    For i = UBound(MenuDetail.PopupMenuCaptions) To LBound(MenuDetail.PopupMenuCaptions)
+        sLastPopupMenuName = sLastPopupMenuName & "|" & MenuDetail.PopupMenuCaptions(i)
+    Next i
+
+    Set GetLastPopUpMenu = Application.CommandBars(sLastPopupMenuName)
 
 End Function
 

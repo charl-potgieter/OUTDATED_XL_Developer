@@ -44,7 +44,7 @@ Sub DeleteFirstLineOfTextFile(ByVal sFilePathAndName As String)
 
     Dim sInput As String
     Dim sOutput() As String
-    Dim I As Long
+    Dim i As Long
     Dim j As Long
     Dim lSizeOfOutput As Long
     Dim iFileNo As Integer
@@ -53,25 +53,25 @@ Sub DeleteFirstLineOfTextFile(ByVal sFilePathAndName As String)
     
     'Import file lines to array excluding firt line
     Open sFilePathAndName For Input As iFileNo
-    I = 0
+    i = 0
     j = 0
     Do Until EOF(iFileNo)
         j = j + 1
         Line Input #iFileNo, sInput
         If j > 1 Then
-            I = I + 1
-            ReDim Preserve sOutput(1 To I)
-            sOutput(I) = sInput
+            i = i + 1
+            ReDim Preserve sOutput(1 To i)
+            sOutput(i) = sInput
         End If
     Loop
     Close #iFileNo
-    lSizeOfOutput = I
+    lSizeOfOutput = i
     
     'Write array to file
     Open sFilePathAndName For Output As 1
-    For I = 1 To lSizeOfOutput
-        Print #iFileNo, sOutput(I)
-    Next I
+    For i = 1 To lSizeOfOutput
+        Print #iFileNo, sOutput(i)
+    Next i
     Close #iFileNo
     
     

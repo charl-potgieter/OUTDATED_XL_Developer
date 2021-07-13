@@ -1,8 +1,8 @@
 Attribute VB_Name = "EntryPoints"
 Option Explicit
 
-Public Type TypeKeyboardMenuDetails
-    PopupCaptions() As String
+Public Type TypeMenuConfig
+    PopupMenuCaptions() As String
     ButtonCaption As String
     SpreadsheetName As String
     SubName As String
@@ -113,12 +113,12 @@ End Sub
 
 Sub ShowPopupMenu()
 
-    Dim MenuDetails() As TypeKeyboardMenuDetails
-    Const PopupCaptionMenuName As String = "VbaMgrPopupCaptionMenu"
+    Dim MenuItems() As TypeMenuConfig
+    Const PopupMenuName As String = "VbaMgrPopupMenu"
     
-    ReadMenuDetails MenuDetails
-    GenerateMenu MenuDetails, PopupCaptionMenuName
-    Application.CommandBars(PopupCaptionMenuName).ShowPopup
+    ReadMenuConfig MenuItems
+    GenerateMenu PopupMenuName, MenuItems
+    Application.CommandBars(PopupMenuName).ShowPopup
 
 End Sub
 
@@ -149,7 +149,7 @@ Sub ListCurrentMenuConfig(Optional control As IRibbonControl)
     
     Set sht = Application.Workbooks.Add.Sheets(1)
     
-    ThisWorkbook.Sheets("MenuBuilder").Range("A1").CurrentRegion.Copy
+    ThisWorkbook.Sheets("MenuConfig").Range("A1").CurrentRegion.Copy
     sht.Range("A1").PasteSpecial xlPasteValues
     Application.CutCopyMode = False
     sht.Activate
@@ -164,7 +164,7 @@ End Sub
 
 Sub ReplaceMenuConfigWithSelection(Optional control As IRibbonControl)
 
-    With ThisWorkbook.Sheets("MenuBuilder")
+    With ThisWorkbook.Sheets("MenuConfig")
         .Cells.EntireRow.Delete
         Selection.Copy
         .Range("A1").PasteSpecial xlPasteValues
