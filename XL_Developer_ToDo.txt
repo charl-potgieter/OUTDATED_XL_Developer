@@ -1,0 +1,9 @@
+Create ability to export code of all open workbooks
+
+Create sub to create a to do Tab
+ -  rather than maintaining a seperate text to do sheet
+ - include in code export
+ 
+ 
+ More  Visual Studio question but how do I work on different projects simaltaneously - what is a workspace?
+ https://www.youtube.com/watch?v=Mo3QMY81oxA
