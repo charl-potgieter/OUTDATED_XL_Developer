@@ -1,9 +1,23 @@
+Test a change
+
+Consider change in standard code workflow - drive from various open projects and call github from command line rather than centralising?  Current state is a bit annoying but changing is a bit of work and makes harder to keep in sync
+ --> file will need to be designated as a "standard library developer file"
+ --> Map prefixes against repos
+ --> Needs to push on file save
+ --> Don't perform the git processes if the file is an add-in (which effectively means it is is production)
+ 
+Consider
+ - Add a field to designate workbook as development
+ * refresh libraries  on open
+ * export VBA code on save
+ * export standard libraries on save and push to github
+
 Create ability to export code of all open workbooks
 
-Create sub to create a to do Tab
+Create sub to create a to do Tab?
  -  rather than maintaining a seperate text to do sheet
  - include in code export
- 
+ - Maybe not as issue is that I will not be able to update todo easily from Dropbox on phone etc
  
  More  Visual Studio question but how do I work on different projects simaltaneously - what is a workspace?
  https://www.youtube.com/watch?v=Mo3QMY81oxA
