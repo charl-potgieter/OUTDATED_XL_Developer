@@ -6,16 +6,16 @@ Function FolderExists(ByVal sFolderPath) As Boolean
 'Requires reference to Microsoft Scripting runtime
 'An alternative solution exists using the DIR function but this seems to result in memory leak and folder is
 'not released by VBA
-    
+
     Dim fso As Scripting.FileSystemObject
     Dim FolderPath As String
-    
+
     Set fso = New Scripting.FileSystemObject
-    
+
     If Right(sFolderPath, 1) <> Application.PathSeparator Then
         FolderPath = FolderPath & Application.PathSeparator
     End If
-    
+
     FolderExists = fso.FolderExists(sFolderPath)
     Set fso = Nothing
 
@@ -34,7 +34,7 @@ Sub CreateFolder(ByVal sFolderPath As String)
         Set fso = New FileSystemObject
         fso.CreateFolder sFolderPath
     End If
-    
+
     Set fso = Nothing
 
 End Sub
@@ -78,53 +78,12 @@ Sub DeleteFirstLineOfTextFile(ByVal sFilePathAndName As String)
 End Sub
 
 
-Sub DownloadFileFromUrl(ByVal sUrl As String, ByVal sTargetFilePathAndName)
+Function WorkbookIsOpen(ByVal sWbkName As String) As Boolean
+'Checks if workbook is open based on filename including extension
 
-    Dim oStream
-    Dim WinHttpReq As Object
-    
-    Set WinHttpReq = CreateObject("Microsoft.XMLHTTP")
-    WinHttpReq.Open "GET", sUrl, False
-    WinHttpReq.send
-    
-    If WinHttpReq.Status = 200 Then
-        Set oStream = CreateObject("ADODB.Stream")
-        oStream.Open
-        oStream.Type = 1
-        oStream.Write WinHttpReq.responseBody
-        oStream.SaveToFile sTargetFilePathAndName, 2 ' 1 = no overwrite, 2 = overwrite
-        oStream.Close
-    End If
-
-End Sub
-
-
-Function ConvertTextFileUnixToWindowsLineFeeds _
-    (sSourceFilePathAndName As String, Optional sTargetFilePathAndName As String = "") As Boolean
-'Inspired by : https://newtonexcelbach.com/2015/11/10/importing-text-files-unix-format/
-'*Nix operating systems utilise different line feeds in text files compared to Windows.
-'This function converts to Windows Format
-
-    Dim WholeLine As String
-    Dim iFileNo As Integer
-
-    'Get first free file number
-    iFileNo = FreeFile
-
-    If sTargetFilePathAndName = "" Then sTargetFilePathAndName = sSourceFilePathAndName
-    Open sSourceFilePathAndName For Input Access Read As #iFileNo
-
-    Line Input #iFileNo, WholeLine
-    If EOF(iFileNo) Then
-        WholeLine = Replace(WholeLine, vbLf, vbCrLf)
-        Close #iFileNo
-        Open sTargetFilePathAndName For Output Access Write As #iFileNo
-        Print #iFileNo, WholeLine
-        Close #iFileNo
-        ConvertTextFileUnixToWindowsLineFeeds = True
-    Else
-        ConvertTextFileUnixToWindowsLineFeeds = False
-    End If
+    WorkbookIsOpen = False
+    On Error Resume Next
+    WorkbookIsOpen = Len(Workbooks(sWbkName).Name) <> 0
+    On Error GoTo 0
 
 End Function
-
