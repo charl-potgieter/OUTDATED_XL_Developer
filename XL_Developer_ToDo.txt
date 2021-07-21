@@ -1,8 +1,3 @@
-When importing code (that has just been exported from the Add-In)
- -> first need to loop through exported folder
- -> Delete any modules with that name in the active workbook (otherwise it creates duplicate modules on import)
-
-
 Change to standard library mechanism
 ------------------------------------
  - Keep all standard library code dev centralised in a single add in
@@ -14,22 +9,13 @@ Change to standard library mechanism
  - Generally keep add in VBA output pushing to the dev branch?
 
 
+Create ability to export code of all open workbooks
+
+Reconfigure ribbon and save down copy so it is upladed to github
+
+Need to branch back into main
 
 General thought (across projects)
  - Create dev branches in all repos
  - Prevent accidental pushes to master as below:
  https://stackoverflow.com/questions/40462111/prevent-commits-in-master-branch
-
-
-Consider
- - Add a field to designate workbook as development
- * refresh libraries  on open
- * export VBA code on save
- * export standard libraries on save and push to github
-
-Create ability to export code of all open workbooks
-
-Create sub to create a to do Tab?
- -  rather than maintaining a seperate text to do sheet
- - include in code export
- - Maybe not as issue is that I will not be able to update todo easily from Dropbox on phone etc

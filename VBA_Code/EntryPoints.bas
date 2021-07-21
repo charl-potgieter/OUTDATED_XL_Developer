@@ -129,7 +129,9 @@ End Sub
 Sub SaveStandardCodeLibraryAndImportIntoCurrentWorkbook()
 
     Dim wkbCodeSource As Workbook
-    Dim sExportPath As String
+    Dim sVbaCodePath As String
+    Dim ModuleNames() As String
+    Dim i As Long
     Const csCodeLibFileName As String = "ExcelVbaCodeLibrary.xlam"
 
     Select Case True
@@ -143,11 +145,26 @@ Sub SaveStandardCodeLibraryAndImportIntoCurrentWorkbook()
             " needs to be open as the source of code libraries.  Exiting.")
             
         Case Else
+            
             Set wkbCodeSource = Workbooks(csCodeLibFileName)
             wkbCodeSource.Save
-            sExportPath = wkbCodeSource.Path & Application.PathSeparator & "VBA_Code"
-            ExportVBAModules wkbCodeSource, sExportPath
-            ImportVBAModules ActiveWorkbook, sExportPath
+            sVbaCodePath = wkbCodeSource.Path & Application.PathSeparator & "VBA_Code"
+            
+            'Delete any existing (which may be outdated) code files in folder
+            On Error Resume Next
+            Kill sVbaCodePath & Application.PathSeparator & "*.*"
+            On Error GoTo 0
+            
+            ExportVBAModules wkbCodeSource, sVbaCodePath
+            
+            'Delete any current code lib files in active workbook
+            GetBaseFileNamesInFolder sVbaCodePath, ModuleNames
+            For i = LBound(ModuleNames) To UBound(ModuleNames)
+                DeleteModule ActiveWorkbook, ModuleNames(i)
+            Next i
+            
+            
+            ImportVBAModules ActiveWorkbook, sVbaCodePath
             MsgBox ("Code library saved and imported into active workbook")
             
     End Select
