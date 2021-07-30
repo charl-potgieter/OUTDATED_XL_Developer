@@ -4,21 +4,14 @@
       <tab id="XLDeveloper" label="XL Developer" insertAfterMso="TabDeveloper">
 
         <group id="VbaTools" label="VBA tools">
-            <button id="customButton1" label="Refresh code libraries" size="large" onAction="RefreshCodeLibrariesInActiveWorkbookFromGithubSource" imageMso="Refresh" />
-            <button id="customButton2" label="List code libraries" size="large" onAction="ListGithubCodeLibraries" imageMso="ListCreateListForm" />
-            <button id="customButton3" label="Replace code libraries with selection" size="large" onAction="ReplaceGithubCodeLibrariesWithSelection" imageMso="ReplaceDialog" />
+            
+            <button id="customButton1" label="Save and import code libraries" size="large" onAction="SaveStandardCodeLibraryAndImportIntoCurrentWorkbook" imageMso="Refresh"  
+            supertip="Saves code in ExcelVbaCodeLibrary.xlam active add in and imports or refreshes this code into active workbook (replaces any modules in active workbook which have same name)"/>
+            
             <button id="customButton4" label="Export code (deletes previous)" size="large" onAction="ExportActiveWorkbookVbaCode" imageMso="Export"  screentip="Export Code" 
             supertip="Saves down VBA code in subolder VBA_Code of active workbook location.  NOTE: this overwrites / deletes any existing files in this subfolder"/>
-        </group>
             
-        <group id="KeyboardMenuCreator" label="Keyboard menu creator">
-          <menu id="MyDropdownMenu" label="Keyboard menu creator" size="large" imageMso="CharacterBorder"  >
-            <button id="customButton10" label="Generate example menu configuration"  onAction="GenerateExampleMenuConfig" />
-            <button id="customButton11" label="List current menu configuration"  onAction="ListCurrentMenuConfig"/>
-            <button id="customButton12" label="Replace with existing menu configuration with selection"  onAction="ReplaceMenuConfigWithSelection"/>
-            <button id="customButton13" label="Change keyboard menu shortcut"  onAction="ChangePopUpMenuKeyboardShortcut"/>
-          </menu>
-        </group>        
+        </group>
             
       </tab>
     </tabs>

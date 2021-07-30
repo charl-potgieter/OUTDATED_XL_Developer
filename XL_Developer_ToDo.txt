@@ -1,15 +1,9 @@
 Change to standard library mechanism
 ------------------------------------
- - Keep all standard library code dev centralised in a single add in
- - Enable VBA import direct from add in 
-  - Import triggers the below:
-        * saves add in
-        * exports add in code which can then be pushed to github
-        * imports add in code into active workbook
- - Generally keep add in VBA output pushing to the dev branch?
-
-
 Create ability to export code of all open workbooks
+
+Revisit the Export Spreadsheet Metadata in spreadsheet BI 
+ - Maybe have this option in addition or replace  VBA code export? --> but will first need to ensure it doesnt generate needless folders and files e.g. if no power queries exist)
 
 Reconfigure ribbon and save down copy so it is upladed to github
 
