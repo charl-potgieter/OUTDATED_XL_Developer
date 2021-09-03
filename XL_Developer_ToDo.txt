@@ -1,9 +1,18 @@
-Change to standard library mechanism
-------------------------------------
-Create ability to export code of all open workbooks
+Continue to work on SaveStandardCodeLibraryAndImportIntoCurrentWorkbook():
+ - need to only export ZLibItems, maybe add an optional prefix paramater to Sub ExportVBAModules which specifies that only modules with the relevant prefix will be exported
+ - test if changes are saved ok
+
+
+Any reason why standard code library can not be housed in this workbook?
+
+
 
 Revisit the Export Spreadsheet Metadata in spreadsheet BI 
  - Maybe have this option in addition or replace  VBA code export? --> but will first need to ensure it doesnt generate needless folders and files e.g. if no power queries exist)
+
+Create ability to export spreadsheetmetadata across all open workbooks
+
+Incorporate the CreateSpreadsheet (from metadata) project into XL_Developer
 
 Reconfigure ribbon and save down copy so it is upladed to github
 
