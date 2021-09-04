@@ -4,7 +4,10 @@ SpreadsheetMetaData saving - maybe just save items used in spreadsheetcreator (n
  * Table (listobject) in fixed position
 
 Continue to work on SaveStandardCodeLibraryAndImportIntoCurrentWorkbook():
+  - How about just export (all modules) as part of SpreadsheetMetadata and then just import the zLib prefixes into the target workbook
+    -> this way there is only one workbook and no temp folder to be deleted as per below mechanism
   - Maybe also export all spreadsheetmetadata of XL_Developer when SaveStandardCodeLibraryAndImportIntoCurrentWorkbook so to enable any changes to the standard code modules to be pushed to the git repo
+  - Delete the zLib_VBA_Code folder once imported into the target spreadsheet.   I dont want the code dupliated here that has been exported via SpreadsheetMetaData for git purposes. 
  - test if changes are saved ok
 
 
