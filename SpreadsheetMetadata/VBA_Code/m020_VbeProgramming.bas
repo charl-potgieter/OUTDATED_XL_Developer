@@ -1,4 +1,4 @@
-Attribute VB_Name = "VbeProgramming"
+Attribute VB_Name = "m020_VbeProgramming"
 Option Explicit
 Option Private Module
 
@@ -20,12 +20,14 @@ Option Private Module
 '
 '------------------------------------------------------------------------------------------------------------------------
 
-Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String, Optional ByVal bDeleteFirstRow = False)
+Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String, _
+    Optional ByVal bDeleteFirstRow = False, Optional ByVal PrefixForExports As String = "")
 'Saves active workbook and exports file to sFolderPath
 ' *****IMPORTANT NOTE****
 ' Any existing files will be overwritten
 'if bDeleteFirstRow is set as true the first row of the file contining module name is deleted to enable file
-'to be simply copied andd pasted into VBA IDE
+'to be simply copied and pasted into VBA IDE
+'If PrefixForExports is set only modules with that prefix are exported
 
     Dim sExportFileName As String
     Dim bExport As Boolean
@@ -56,6 +58,11 @@ Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String, 
                 ' This is a worksheet or workbook object - don't export.
                 bExport = False
         End Select
+        
+        If PrefixForExports <> "" And Left(sFileName, Len(PrefixForExports)) <> _
+            PrefixForExports Then
+                bExport = False
+        End If
         
         If bExport Then
             sExportFileName = sFolderPath & Application.PathSeparator & sFileName

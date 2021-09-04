@@ -1,5 +1,10 @@
+SpreadsheetMetaData saving - maybe just save items used in spreadsheetcreator (nothing power pivot related)
+ * Maybe get rid of the heading and category --> just keep it simple, especially given broadening of reporting sheet concept that I dont want to bring into developer spreadsheet
+ * Zero gridlines on each sheet when it is created
+ * Table (listobject) in fixed position
+
 Continue to work on SaveStandardCodeLibraryAndImportIntoCurrentWorkbook():
- - need to only export ZLibItems, maybe add an optional prefix paramater to Sub ExportVBAModules which specifies that only modules with the relevant prefix will be exported
+  - Maybe also export all spreadsheetmetadata of XL_Developer when SaveStandardCodeLibraryAndImportIntoCurrentWorkbook so to enable any changes to the standard code modules to be pushed to the git repo
  - test if changes are saved ok
 
 

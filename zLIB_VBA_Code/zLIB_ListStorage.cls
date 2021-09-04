@@ -12,7 +12,8 @@ Option Explicit
 '
 
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
-'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
+'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/\
+'
 Private Type TypeListStorage
     wkb As Workbook
     Sheet As Worksheet
