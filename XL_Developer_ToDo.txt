@@ -1,30 +1,19 @@
 SpreadsheetMetaData saving - maybe just save items used in spreadsheetcreator (nothing power pivot related)
+ * Worthwhile using ListObject storage class for the tables for spreadsheetcreation - could make the code a lot cleaner. 
+    --> Create method to createliststorage from PowerQuery (powerquery needs to already exist)
+    --> Create a hidden variable (or property?) to check is the strorage object is power query based.  IF it is do not allow certain functions to run (e.g. add new items, replace with filtered date)
+
+ * Have a first sheet with file name --> currently I am saving filename in witht the table data --> this doesnt work as the spreadsheet may not necessarily contain tables
  * Maybe get rid of the heading and category --> just keep it simple, especially given broadening of reporting sheet concept that I dont want to bring into developer spreadsheet
  * Zero gridlines on each sheet when it is created
  * Table (listobject) in fixed position
+ * Can I build files direct from Github?  Will it work with forms (which is a binary?)
+ * Remove Generate Spreadsheet metadata from SpreadsheetBI
 
-Continue to work on SaveStandardCodeLibraryAndImportIntoCurrentWorkbook():
-  - How about just export (all modules) as part of SpreadsheetMetadata and then just import the zLib prefixes into the target workbook
-    -> this way there is only one workbook and no temp folder to be deleted as per below mechanism
-  - Maybe also export all spreadsheetmetadata of XL_Developer when SaveStandardCodeLibraryAndImportIntoCurrentWorkbook so to enable any changes to the standard code modules to be pushed to the git repo
-  - Delete the zLib_VBA_Code folder once imported into the target spreadsheet.   I dont want the code dupliated here that has been exported via SpreadsheetMetaData for git purposes. 
- - test if changes are saved ok
+Check that the createspreadsheet still works if there are no tables in the workbook
 
-
-Any reason why standard code library can not be housed in this workbook?
-
-
-
-Revisit the Export Spreadsheet Metadata in spreadsheet BI 
- - Maybe have this option in addition or replace  VBA code export? --> but will first need to ensure it doesnt generate needless folders and files e.g. if no power queries exist)
-
-Create ability to export spreadsheetmetadata across all open workbooks
-
-Incorporate the CreateSpreadsheet (from metadata) project into XL_Developer
 
 Reconfigure ribbon and save down copy so it is upladed to github
-
-Need to branch back into main
 
 General thought (across projects)
  - Create dev branches in all repos

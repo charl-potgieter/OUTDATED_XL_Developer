@@ -79,15 +79,18 @@ Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String, 
 End Sub
 
 
-Public Sub ImportVBAModules(ByRef wkb As Workbook, ByVal sFolder As String)
+Public Sub ImportVBAModules(ByRef wkb As Workbook, ByVal sFolder As String, _
+    Optional ByVal PrefixForImports As String = "")
 'Imports VBA code sFolder
-
+'If PrefixForImports is set only modules with that prefix are imported
 
     Dim objFSO As Scripting.FileSystemObject
     Dim objFile As Scripting.File
     Dim sTargetWorkbook As String
     Dim sImportPath As String
     Dim zFileName As String
+    Dim PrefixOkforImport As Boolean
+    Dim PrefixLength As Integer
     Dim cmpComponents As VBIDE.VBComponents
 
     If wkb.Name = ThisWorkbook.Name Then
@@ -105,7 +108,6 @@ Public Sub ImportVBAModules(ByRef wkb As Workbook, ByVal sFolder As String)
         
     Set objFSO = New Scripting.FileSystemObject
     If objFSO.GetFolder(sFolder).Files.Count = 0 Then
-       MsgBox "There are no files to import"
        Exit Sub
     End If
 
@@ -114,10 +116,17 @@ Public Sub ImportVBAModules(ByRef wkb As Workbook, ByVal sFolder As String)
     
     For Each objFile In objFSO.GetFolder(sFolder).Files
     
-        If (objFSO.GetExtensionName(objFile.Name) = "cls") Or _
-            (objFSO.GetExtensionName(objFile.Name) = "frm") Or _
-            (objFSO.GetExtensionName(objFile.Name) = "bas") Then
-            cmpComponents.Import objFile.Path
+        PrefixLength = Len(PrefixForImports)
+        PrefixOkforImport = PrefixForImports = "" Or _
+            Left(objFile.Name, PrefixLength) = PrefixForImports
+    
+        If PrefixOkforImport And _
+            ( _
+                (objFSO.GetExtensionName(objFile.Name) = "cls") Or _
+                (objFSO.GetExtensionName(objFile.Name) = "frm") Or _
+                (objFSO.GetExtensionName(objFile.Name) = "bas") _
+            ) Then
+                cmpComponents.Import objFile.Path
         End If
         
     Next objFile

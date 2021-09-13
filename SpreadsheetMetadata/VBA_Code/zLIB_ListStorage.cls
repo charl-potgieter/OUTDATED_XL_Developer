@@ -406,7 +406,7 @@ End Sub
 Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As Worksheet
 
     Dim sht As Worksheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    Set sht = wkb.Sheets.Add(after:=wkb.Sheets(wkb.Sheets.Count))
     sht.Name = sName
     Set CreateListStorageSheet = sht
     

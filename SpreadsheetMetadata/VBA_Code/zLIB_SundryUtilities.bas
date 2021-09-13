@@ -2,7 +2,7 @@ Attribute VB_Name = "zLIB_SundryUtilities"
 Option Explicit
 Option Private Module
 
-'------------------------------------------------------------------------------
+'------------------------------------------------------------------------------x
 '    Requires reference to Microsoft Forms 2.0 object library
 '------------------------------------------------------------------------------
 

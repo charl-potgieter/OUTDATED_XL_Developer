@@ -210,7 +210,7 @@ Function NumberOfFilesInFolder(ByVal sFolderPath As String) As Integer
 End Function
 
 
-Function GetFolder() As String
+Function GetFolder(Optional InitialPath As String = "") As String
 'Returns the results of a user folder picker
 
     Dim fldr As FileDialog
@@ -220,7 +220,11 @@ Function GetFolder() As String
     With fldr
         .Title = "Select a folder"
         .AllowMultiSelect = False
-        .InitialFileName = ActiveWorkbook.Path
+        If InitialPath <> "" Then
+            .InitialFileName = InitialPath
+        Else
+            .InitialFileName = ActiveWorkbook.Path
+        End If
         If .Show = -1 Then
             GetFolder = .SelectedItems(1)
         End If
