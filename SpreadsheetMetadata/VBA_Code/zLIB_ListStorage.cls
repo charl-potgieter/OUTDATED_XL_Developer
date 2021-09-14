@@ -19,6 +19,7 @@ Private Type TypeListStorage
     Sheet As Worksheet
     ListObj As ListObject
     FilteredListObj As ListObject
+    CreatedFromPowerQuery As Boolean
 End Type
 Private this As TypeListStorage
 
@@ -51,6 +52,54 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
         this.FilteredListObj.Range.Columns.Group
         this.Sheet.Outline.ShowLevels ColumnLevels:=1
         
+        this.CreatedFromPowerQuery = False
+        
+    End If
+
+End Function
+
+
+Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
+    ByVal sName As String, ByVal PowerQueryName As String _
+    ) As Boolean
+
+    Dim Headings As Variant
+
+    If StorageAlreadyExists(wkb, sName) Or Not QueryExists(PowerQueryName) Then
+        CreateStorageFromPowerQuery = False
+    Else
+
+        this.CreatedFromPowerQuery = True
+        Set this.wkb = wkb
+        Set this.Sheet = CreateListStorageSheet(wkb, sName)
+        FormatListStorageSheet this.Sheet
+         
+        'Output the Power Query to a worksheet table
+        Set this.ListObj = this.Sheet.ListObjects.Add( _
+            SourceType:=0, _
+            Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & PowerQueryName & ";Extended Properties=""""", _
+            Destination:=Range("$B$7"))
+            
+        With this.ListObj
+            .QueryTable.CommandType = xlCmdSql
+            .QueryTable.CommandText = Array("SELECT * FROM [" & PowerQueryName & "]")
+            .QueryTable.Refresh BackgroundQuery:=False
+            .Name = "tbl_" & sName
+            .DataBodyRange.EntireColumn.NumberFormat = "@"
+        End With
+
+        FormatStorageListObject this.ListObj
+
+        'Double transpose trick converts to a 1 dimensional array
+        'https://stackoverflow.com/questions/7649046/one-dimensional-array-from-excel-range/7651439
+        Headings = WorksheetFunction.Transpose( _
+            WorksheetFunction.Transpose(this.ListObj.HeaderRowRange))
+            
+        Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
+        FormatStorageListObject this.FilteredListObj
+        this.FilteredListObj.Range.Columns.Group
+        this.Sheet.Outline.ShowLevels ColumnLevels:=1
+
     End If
 
 End Function
@@ -69,7 +118,8 @@ Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As B
     
     this.ListObj.ShowAutoFilter = True
     this.ListObj.AutoFilter.ShowAllData
-        
+    this.CreatedFromPowerQuery = (this.ListObj.SourceType = xlSrcQuery)
+    
     AssignStorage = (Err.Number = 0)
     
     On Error GoTo 0
@@ -98,7 +148,9 @@ End Property
 
 Public Sub AddBlankRow()
 
-    AddOneRowToListObject this.ListObj
+    If Not this.CreatedFromPowerQuery Then
+        AddOneRowToListObject this.ListObj
+    End If
 
 End Sub
 
@@ -179,6 +231,11 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
 
     bKeysAreValid = True
 
+    If this.CreatedFromPowerQuery Then
+        InsertFromDictionary = False
+        Exit Function
+    End If
+
     'First test that keys in dictionary correspond to field headers
     For Each key In InsertValues.Keys
         bKeysAreValid = bKeysAreValid And _
@@ -256,9 +313,14 @@ Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolea
 End Function
 
 
-Public Sub ReplaceDataWithFilteredData()
+Function ReplaceDataWithFilteredData() As Boolean
 'Replaces the Original data per the listobject with the filtered versions per This.FilteredListObject
 'Filtered List object is cleared
+    
+    If this.CreatedFromPowerQuery Then
+        ReplaceDataWithFilteredData = False
+        Exit Function
+    End If
     
     If Not this.ListObj.DataBodyRange Is Nothing Then
         this.ListObj.DataBodyRange.Rows.Delete
@@ -272,8 +334,9 @@ Public Sub ReplaceDataWithFilteredData()
         this.FilteredListObj.DataBodyRange.Rows.Delete
     End If
     
+    ReplaceDataWithFilteredData = True
 
-End Sub
+End Function
 
 Public Function Xlookup(ByVal LookupValue As Variant, _
     ByVal sLookupArray As String, _
@@ -393,20 +456,26 @@ Public Function IsEmpty() As Boolean
 End Function
 
 
-Public Sub ClearData()
+Public Function ClearData() As Boolean
+
+    If this.CreatedFromPowerQuery Then
+        ClearData = False
+    End If
 
     On Error Resume Next 'In event there is no databody range
     this.ListObj.DataBodyRange.Rows.Delete
     On Error GoTo 0
+    ClearData = True
 
-End Sub
+
+End Function
 
 
 
 Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As Worksheet
 
     Dim sht As Worksheet
-    Set sht = wkb.Sheets.Add(after:=wkb.Sheets(wkb.Sheets.Count))
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     sht.Name = sName
     Set CreateListStorageSheet = sht
     
@@ -554,9 +623,16 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
 End Sub
 
 
-Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As String)
+Public Function AddFieldValidationList(ByVal sFieldName As String, sValidationList As String) As Boolean
 
     Dim TestCount As Long
+
+    If this.CreatedFromPowerQuery Then
+        AddFieldValidationList = False
+    Else
+        AddFieldValidationList = True
+    End If
+    
 
     'Ensure databody range exists
     On Error Resume Next
@@ -567,7 +643,7 @@ Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As
         .Delete
         .Add Type:=xlValidateList, Formula1:=sValidationList
     End With
-End Sub
+End Function
 
 
 

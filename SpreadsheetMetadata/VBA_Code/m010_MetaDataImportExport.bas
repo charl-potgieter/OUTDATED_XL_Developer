@@ -45,7 +45,7 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
     GenerateMetadataFileListObjectValues wkb, _
         sTableStructurePath & Application.PathSeparator & "ListObjectFieldValues.txt"
     GenerateMetadataFileListObjectFormat wkb, _
-        sTableStructurePath & Application.PathSeparator & "ListObjectFormats.txt"
+        sTableStructurePath & Application.PathSeparator & "ListObjectFieldFormats.txt"
 
     'Export VBA code
     ExportVBAModules wkb, sVbaCodePath
@@ -211,68 +211,89 @@ Sub GenerateMetadataOther(ByRef wkb As Workbook, ByVal sFilePathAndName As Strin
 End Sub
 
 
-Function GenerateListObjectWorkingTableOnNewSheet(ByVal wkb As Workbook, _
-    SourceFileBaseName As String, SourcePath As String) As ListObject
+Sub AddSheetsToWorkbook(ByVal wkb As Workbook, _
+    ByVal SheetNames As Variant)
 
+    Dim i As Integer
     Dim sht As Worksheet
-    Dim FilePath As String
-    Dim QueryText As String
     
-    Set sht = wkb.Sheets.Add
-    sht.Name = SourceFileBaseName
-    FilePath = SourcePath & Application.PathSeparator & _
-        SourceFileBaseName & ".txt"
-    QueryText = PipeDelimitedSourcePowerQuery(FilePath)
-    Set GenerateListObjectWorkingTableOnNewSheet = CreatePowerQueryTable( _
-        sht, SourceFileBaseName, QueryText, "tbl_" & SourceFileBaseName)
-        
+    For i = LBound(SheetNames) To UBound(SheetNames)
+        Set sht = wkb.Sheets.Add(After:=wkb.Sheets(i))
+        sht.Activate
+        sht.Name = SheetNames(i)
+        ActiveWindow.DisplayGridlines = False
+        ActiveWindow.Zoom = 80
+    Next i
 
-End Function
-
-
-Function PipeDelimitedSourcePowerQuery(ByVal sFilePath As String) As String
-
-    PipeDelimitedSourcePowerQuery = _
-        "let" & vbCr & _
-        "    Source = Csv.Document(File.Contents(""" & _
-        sFilePath & """" & _
-        "),[Delimiter=""|"", Encoding=1252, QuoteStyle=QuoteStyle.None])," & vbCr & _
-        "   PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true])" & vbCr & _
-        "in " & vbCr & _
-        "   PromotedHeaders"
-
-End Function
+End Sub
 
 
-Function CreatePowerQueryTable( _
-    ByVal sht As Worksheet, _
-    ByVal sQueryName As String, _
-    ByVal sQueryText As String, _
-    ByVal sTableName As String) As ListObject
 
-'Creates power query and loads as a table on sht
-            
-    Dim lo As ListObject
-    
-    sht.Parent.Queries.Add sQueryName, sQueryText
-        
-    'Output the Power Query to a worksheet table
-    Set lo = sht.ListObjects.Add( _
-        SourceType:=0, _
-        Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & sQueryName & ";Extended Properties=""""", _
-        Destination:=Range("$A$1"))
-        
-    lo.Name = sTableName
-    
-    With lo.QueryTable
-        .CommandType = xlCmdSql
-        .CommandText = Array("SELECT * FROM [" & sQueryName & "]")
-        .Refresh BackgroundQuery:=False
-    End With
-    
-    Set CreatePowerQueryTable = lo
-        
-End Function
+'Function GenerateListObjectWorkingTableOnNewSheet(ByVal wkb As Workbook, _
+'    SourceFileBaseName As String, SourcePath As String) As ListObject
+'
+'    Dim sht As Worksheet
+'    Dim FilePath As String
+'    Dim QueryText As String
+'
+'    Set sht = wkb.Sheets.Add
+'    sht.Name = SourceFileBaseName
+'    FilePath = SourcePath & Application.PathSeparator & _
+'        SourceFileBaseName & ".txt"
+'    QueryText = PipeDelimitedSourcePowerQuery(FilePath)
+'    Set GenerateListObjectWorkingTableOnNewSheet = CreatePowerQueryTable( _
+'        sht, SourceFileBaseName, QueryText, "tbl_" & SourceFileBaseName)
+'
+'
+'End Function
+
+
+
+
+
+'Function PipeDelimitedSourcePowerQuery(ByVal sFilePath As String) As String
+'
+'    PipeDelimitedSourcePowerQuery = _
+'        "let" & vbCr & _
+'        "    Source = Csv.Document(File.Contents(""" & _
+'        sFilePath & """" & _
+'        "),[Delimiter=""|"", Encoding=1252, QuoteStyle=QuoteStyle.None])," & vbCr & _
+'        "   PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true])" & vbCr & _
+'        "in " & vbCr & _
+'        "   PromotedHeaders"
+'
+'End Function
+
+
+'Function CreatePowerQueryTable( _
+'    ByVal sht As Worksheet, _
+'    ByVal sQueryName As String, _
+'    ByVal sQueryText As String, _
+'    ByVal sTableName As String) As ListObject
+'
+''Creates power query and loads as a table on sht
+'
+'    Dim lo As ListObject
+'
+'    sht.Parent.Queries.Add sQueryName, sQueryText
+'
+'    'Output the Power Query to a worksheet table
+'    Set lo = sht.ListObjects.Add( _
+'        SourceType:=0, _
+'        Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & sQueryName & ";Extended Properties=""""", _
+'        Destination:=Range("$A$1"))
+'
+'    lo.Name = sTableName
+'
+'    With lo.QueryTable
+'        .CommandType = xlCmdSql
+'        .CommandText = Array("SELECT * FROM [" & sQueryName & "]")
+'        .Refresh BackgroundQuery:=False
+'    End With
+'
+'    Set CreatePowerQueryTable = lo
+'
+'End Function
 
 
 Sub FormatCoverSheet(ByVal sht As Worksheet)
@@ -321,7 +342,7 @@ Sub CreateListObjectsFromMetadata(ByRef wkb As Workbook, ByVal loFieldDetails As
             sFormula = .ListColumns("Formula").DataBodyRange.Cells(i)
             
             If Not SheetExists(wkb, sSheetName) Then
-                Set sht = wkb.Sheets.Add(after:=wkb.Sheets(wkb.Sheets.Count))
+                Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
                 sht.Name = sSheetName
             End If
             

@@ -15,27 +15,18 @@ Sub CreateSpreadsheetFromMetadata()
 
 
     Dim sFolderPath As String
-    Dim sFilePath As String
     Dim wkb As Workbook
-    Dim sQueryText As String
-    Dim sht As Worksheet
-    Dim rng As Range
-    Dim InitialSheetOnWorkbookCreation As Worksheet
-    Dim i As Integer
-    Dim loListObjFields As ListObject
-    Dim SheetWithListObjData As Worksheet
-    Dim loListObjFieldValues As ListObject
-    Dim loListObjFormats As ListObject
-    Dim loOtherFileMetaData As ListObject
     Dim fso As FileSystemObject
-    Dim SheetNameColumn As Range
-    Dim TableNameColumn As Range
-    Dim TableHeaderColumn As Range
-    Dim IsFormulaColumn As Range
-    Dim FormulaColumn As Range
+    Dim InitialSheetOnWorkbookCreation As Worksheet
+    Dim StorageListObjFields
+    Dim StorageListObjFieldValues
+    Dim StorageListObjFieldFormats
+    Dim StorageOther
+    Dim SheetNames As Variant
     Const StorageRefOFLastFolder As String = _
         "Last utilised folder for creating spreadsheet from metadata"
-    
+
+
     StandardEntry
     
     'Get folder containing metadata
@@ -43,6 +34,8 @@ Sub CreateSpreadsheetFromMetadata()
     If sFolderPath = "" Then
         Exit Sub
     End If
+    
+    'Save the selected folder for future use
     Set fso = New FileSystemObject
     RangeOfStoredData(StorageRefOFLastFolder).Value = fso.GetParentFolderName(sFolderPath)
     ThisWorkbook.Save
@@ -50,67 +43,29 @@ Sub CreateSpreadsheetFromMetadata()
     Set wkb = CreateNewWorkbookWithOneSheet
     Set InitialSheetOnWorkbookCreation = wkb.Sheets(1)
     FormatCoverSheet InitialSheetOnWorkbookCreation
+
+    'Assign storage for the relevant spreadsheet metadata
+    Set StorageListObjFields = CreateListObjFieldStorage( _
+        sFolderPath & Application.PathSeparator & "TableStructure" & _
+            Application.PathSeparator & "ListObjectFields.txt", _
+        wkb)
+    Set StorageListObjFieldValues = CreateListObjFieldValuesStorage( _
+        sFolderPath & Application.PathSeparator & "TableStructure" & _
+            Application.PathSeparator & "ListObjectFieldValues.txt", _
+        wkb)
+    Set StorageListObjFieldFormats = CreateListObjFieldFormatsStorage( _
+        sFolderPath & Application.PathSeparator & "TableStructure" & _
+            Application.PathSeparator & "ListObjectFieldFormats.txt", _
+        wkb)
+    Set StorageOther = CreateOtherStorage( _
+        sFolderPath & Application.PathSeparator & "Other" & _
+            Application.PathSeparator & "OtherData.txt", _
+        wkb)
+
+    SheetNames = GetSheetNames(StorageListObjFields)
+    AddSheetsToWorkbook wkb, SheetNames
     
-    'Create temporary sheets for storing listobject properties and values
-    Set loListObjFields = GenerateListObjectWorkingTableOnNewSheet(wkb, "ListObjectFields", _
-        sFolderPath & Application.PathSeparator & "TableStructure")
-    Set loListObjFieldValues = GenerateListObjectWorkingTableOnNewSheet(wkb, "ListObjectFieldValues", _
-        sFolderPath & Application.PathSeparator & "TableStructure")
-    Set loListObjFormats = GenerateListObjectWorkingTableOnNewSheet(wkb, "ListObjectFormats", _
-        sFolderPath & Application.PathSeparator & "TableStructure")
-    Set loListObjFormats = GenerateListObjectWorkingTableOnNewSheet(wkb, "OtherData", _
-        sFolderPath & Application.PathSeparator & "Other")
 
-    Set SheetWithListObjData = loListObjFields.Parent
-    Set SheetNameColumn = SheetWithListObjData.Range("J:J")
-    Set TableNameColumn = SheetWithListObjData.Range("K:K")
-    Set TableHeaderColumn = SheetWithListObjData.Range("M:M")
-    Set IsFormulaColumn = SheetWithListObjData.Range("N:N")
-    Set FormulaColumn = SheetWithListObjData.Range("O:O")
-    
-    SheetNameColumn.Cells(1).Formula2 = _
-        "=UNIQUE(tbl_ListObjectFields[[SheetName]:[ListObjectName]])"
-    For i = 1 To SheetNameColumn.CurrentRegion.Rows.Count
-        TableHeaderColumn.Cells(1).Formula2 = _
-            "=FILTER(" & vbLf & _
-            "    tbl_ListObjectFields[[ListObjectHeader]:[Formula]], " & vbLf & _
-            "    (tbl_ListObjectFields[SheetName]=""" & SheetNameColumn.Cells(i) & """) * " & vbLf & _
-            "    (tbl_ListObjectFields[ListObjectName]=""" & TableNameColumn.Cells(i) & """)" & vbLf & _
-            ")"
-    Next i
-
-
-
-
-'    SheetNames = WorksheetFunction.Unique(loListObjFields.ListColumns("SheetName").DataBodyRange)
-'    For i = LBound(SheetNames, 1) To UBound(SheetNames, 1)
-'        With loListObjFields
-'            SheetName = SheetNames(i, 1)
-'            TableName = WorksheetFunction.Xlookup( _
-'                SheetName, _
-'                .ListColumns("SheetName").DataBodyRange, _
-'                .ListColumns("ListObjectName").DataBodyRange)
-'            TableHeaders = WorksheetFunction.Filter( _
-'                .ListColumns("ListObjectHeader").DataBodyRange, _
-'                Array(.ListColumns("SheetName").DataBodyRange = SheetName))
-'        End With
-'
-'    Next i
-'
-'
-'    'Add sheets to target workbook
-'    With wkb.Sheets("ListObjectFields").ListObjects("tbl_ListObjectFields")
-'        For Each rng In .ListColumns("SheetName").DataBodyRange
-'            If Not SheetExists(wkb, rng.Value) Then
-'                Set sht = wkb.Sheets.Add(after:=wkb.Sheets(wkb.Sheets.Count))
-'                sht.Activate
-'                sht.Name = rng.Value
-'                ActiveWindow.DisplayGridlines = False
-'                ActiveWindow.Zoom = 80
-'            End If
-'        Next rng
-'    End With
-'
 '    CreateListObjectsFromMetadata wkb, loListObjFields
 ''    PopulateListObjectValues wkb
 '    SetListObjectFormats wkb
@@ -129,6 +84,7 @@ Sub CreateSpreadsheetFromMetadata()
         
     wkb.Activate
     ActiveWindow.WindowState = xlMaximized
+    wkb.Sheets(1).Select
     MsgBox ("Spreadsheet created")
         
     StandardExit

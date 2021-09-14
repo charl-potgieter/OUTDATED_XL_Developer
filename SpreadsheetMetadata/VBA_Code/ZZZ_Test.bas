@@ -22,7 +22,20 @@ Sub test2()
 
     Dim a As zLIB_ListStorage
     
-    a.
+
+    Set a = New zLIB_ListStorage
+    a.CreateStorageFromPowerQuery ActiveWorkbook, "MyTest", "Table1"
+    Set a = Nothing
+
+
+End Sub
+
+
+Sub testReadRange()
+
+    Dim a
+    
+    a = WorksheetFunction.Transpose(WorksheetFunction.Transpose(Selection.Value))
 
 
 End Sub
