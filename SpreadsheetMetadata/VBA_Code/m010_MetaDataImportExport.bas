@@ -64,14 +64,12 @@ Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook, ByVal sFilePathA
 
     Dim i As Long
     Dim sht As Worksheet
+    Dim ListStorage As zLIB_ListStorage
+    Dim StorageAssigned As Boolean
     Dim lo As ListObject
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
-    Dim fso As Scripting.FileSystemObject
-
-    
-    Set fso = New Scripting.FileSystemObject
 
     sRowToWrite = ""
     iFileNo = FreeFile 'Get first free file number
@@ -80,28 +78,29 @@ Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook, ByVal sFilePathA
     'Write headers
     Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|IsFormula|Formula";
     
+    Set ListStorage = New zLIB_ListStorage
+    
     For Each sht In wkb.Worksheets
-            
-        If sht.ListObjects.Count = 1 Then
-            Set lo = sht.ListObjects(1)
+        StorageAssigned = ListStorage.AssignStorage(wkb, sht.Name)
+        If StorageAssigned Then
+            Set lo = ListStorage.ListObj
+            If ListStorage.IsEmpty Then ListStorage.AddBlankRow
             For i = 1 To lo.HeaderRowRange.Columns.Count
-            
                 sRowToWrite = vbCr & _
                     sht.Name & "|" & _
                     lo.Name & "|" _
                     & lo.HeaderRowRange.Cells(i) & "|" & _
                     lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula & "|"
-                    
                 If lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula Then
                     sRowToWrite = sRowToWrite & lo.ListColumns(i).DataBodyRange.Cells(1).Formula
                 End If
-                    
                 Print #iFileNo, sRowToWrite;
             Next i
         End If
-                
     Next sht
+    
     Close #iFileNo
+    Set ListStorage = Nothing
 
 End Sub
 
@@ -112,6 +111,8 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathA
     Dim j As Long
     Dim sht As Worksheet
     Dim lo As ListObject
+    Dim ListStorage As zLIB_ListStorage
+    Dim StorageAssigned As Boolean
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
@@ -124,10 +125,13 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathA
     'Write headers
     Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|Value";
     
+    Set ListStorage = New zLIB_ListStorage
+    
     For Each sht In wkb.Worksheets
-        
-        If sht.ListObjects.Count = 1 Then
-            Set lo = sht.ListObjects(1)
+        StorageAssigned = ListStorage.AssignStorage(wkb, sht.Name)
+        If StorageAssigned Then
+            Set lo = ListStorage.ListObj
+            If ListStorage.IsEmpty Then ListStorage.AddBlankRow
             For i = 1 To lo.HeaderRowRange.Columns.Count
                 If Not (lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula) Then
                     For j = 1 To lo.DataBodyRange.Rows.Count
@@ -141,9 +145,10 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathA
                 End If
             Next i
         End If
-                
     Next sht
+    
     Close #iFileNo
+    Set ListStorage = Nothing
 
 End Sub
 
@@ -153,6 +158,8 @@ Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook, ByVal sFilePathA
     Dim i As Long
     Dim sht As Worksheet
     Dim lo As ListObject
+    Dim ListStorage As zLIB_ListStorage
+    Dim StorageAssigned As Boolean
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
@@ -164,12 +171,14 @@ Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook, ByVal sFilePathA
     'Write headers
     Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|NumberFormat|FontColour";
     
+    Set ListStorage = New zLIB_ListStorage
+    
     For Each sht In wkb.Worksheets
-            
-        If sht.ListObjects.Count = 1 Then
-            Set lo = sht.ListObjects(1)
+        StorageAssigned = ListStorage.AssignStorage(wkb, sht.Name)
+        If StorageAssigned Then
+            Set lo = ListStorage.ListObj
+            If ListStorage.IsEmpty Then ListStorage.AddBlankRow
             For i = 1 To lo.HeaderRowRange.Columns.Count
-            
                 sRowToWrite = vbCr & _
                     sht.Name & "|" & _
                     lo.Name & "|" & _
@@ -182,6 +191,7 @@ Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook, ByVal sFilePathA
                 
     Next sht
     Close #iFileNo
+    Set ListStorage = Nothing
 
 End Sub
 
@@ -211,22 +221,33 @@ Sub GenerateMetadataOther(ByRef wkb As Workbook, ByVal sFilePathAndName As Strin
 End Sub
 
 
-Sub AddSheetsToWorkbook(ByVal wkb As Workbook, _
-    ByVal SheetNames As Variant)
 
-    Dim i As Integer
-    Dim sht As Worksheet
-    
-    For i = LBound(SheetNames) To UBound(SheetNames)
-        Set sht = wkb.Sheets.Add(After:=wkb.Sheets(i))
-        sht.Activate
-        sht.Name = SheetNames(i)
+
+Sub FormatCoverSheet(ByVal sht As Worksheet, ByVal FileName As String)
+
+    With sht
+        .Activate
+        .Move Before:=sht.Parent.Sheets(1)
+        .Name = "Cover"
+        .Range("B2").Font.Bold = True
+        .Range("B2").Font.Size = 16
+        .Range("B2").Value = FileName
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
-    Next i
+    End With
 
 End Sub
 
+
+Sub CreateListObj(ByVal SheetName As String, ByVal ListObjName As String, _
+     ByVal ListObjHeaders As Variant, ByVal ListObjRow As Integer, _
+     ByVal ListObjCol As Integer)
+     
+     
+     
+     
+     
+End Sub
 
 
 'Function GenerateListObjectWorkingTableOnNewSheet(ByVal wkb As Workbook, _
@@ -296,77 +317,63 @@ End Sub
 'End Function
 
 
-Sub FormatCoverSheet(ByVal sht As Worksheet)
 
-    With sht
-        .Activate
-        .Move Before:=sht.Parent.Sheets(1)
-        .Name = "Cover"
-        .Range("B2").Font.Bold = True
-        .Range("B2").Font.Size = 16
-        .Range("B2").Value = Evaluate("=XLOOKUP(""FileName"",tbl_OtherData[Item],tbl_OtherData[Value])")
-        ActiveWindow.DisplayGridlines = False
-        ActiveWindow.Zoom = 80
-    End With
-
-End Sub
-
-
-Sub CreateListObjectsFromMetadata(ByRef wkb As Workbook, ByVal loFieldDetails As ListObject)
-'Records listobject field names and formulas in wkb based on metadata stored in
-'wkb.Sheets("Temp_ListObjectFields").ListObjects("tbl_ListObjectFields")
-
-    Dim loTargetListObj As ListObject
-    Dim i As Long
-    Dim j As Long
-    Dim sht As Worksheet
-    Dim sSheetName As String
-    Dim sListObjName As String
-    Dim sListObjHeader As String
-    Dim bIsFormula As Boolean
-    Dim sFormula As String
-    
-    'No ListObject field details.  Nothing to do.  Sub exited to prevent error
-    'caused by referencing the list databodyrange
-    If loFieldDetails.DataBodyRange Is Nothing Then
-        Exit Sub
-    End If
-    
-    
-    With loFieldDetails
-        For i = 1 To .DataBodyRange.Rows.Count
-            sSheetName = .ListColumns("SheetName").DataBodyRange.Cells(i)
-            sListObjName = .ListColumns("ListObjectName").DataBodyRange.Cells(i)
-            sListObjHeader = .ListColumns("ListObjectHeader").DataBodyRange.Cells(i)
-            bIsFormula = CBool(.ListColumns("isFormula").DataBodyRange.Cells(i))
-            sFormula = .ListColumns("Formula").DataBodyRange.Cells(i)
-            
-            If Not SheetExists(wkb, sSheetName) Then
-                Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-                sht.Name = sSheetName
-            End If
-            
-            'Increment j as header col counter if writing to the table name as previous iteration
-            If i = 1 Then
-                j = 1
-            ElseIf sListObjName = .ListColumns("ListObjectName").DataBodyRange.Cells(i - 1) Then
-                j = j + 1
-            Else
-                j = 1
-            End If
-            
-            Set loTargetListObj = wkb.Worksheets(sSheetName).ListObjects(sListObjName)
-            loTargetListObj.HeaderRowRange.Cells(j) = sListObjHeader
-            
-            If bIsFormula Then
-                loTargetListObj.ListColumns(sListObjHeader).DataBodyRange.Formula = sFormula
-            End If
-            
-            
-        Next i
-    End With
-    
-End Sub
+'
+'Sub CreateListObjectsFromMetadata(ByRef wkb As Workbook, ByVal loFieldDetails As ListObject)
+''Records listobject field names and formulas in wkb based on metadata stored in
+''wkb.Sheets("Temp_ListObjectFields").ListObjects("tbl_ListObjectFields")
+'
+'    Dim loTargetListObj As ListObject
+'    Dim i As Long
+'    Dim j As Long
+'    Dim sht As Worksheet
+'    Dim sSheetName As String
+'    Dim sListObjName As String
+'    Dim sListObjHeader As String
+'    Dim bIsFormula As Boolean
+'    Dim sFormula As String
+'
+'    'No ListObject field details.  Nothing to do.  Sub exited to prevent error
+'    'caused by referencing the list databodyrange
+'    If loFieldDetails.DataBodyRange Is Nothing Then
+'        Exit Sub
+'    End If
+'
+'
+'    With loFieldDetails
+'        For i = 1 To .DataBodyRange.Rows.Count
+'            sSheetName = .ListColumns("SheetName").DataBodyRange.Cells(i)
+'            sListObjName = .ListColumns("ListObjectName").DataBodyRange.Cells(i)
+'            sListObjHeader = .ListColumns("ListObjectHeader").DataBodyRange.Cells(i)
+'            bIsFormula = CBool(.ListColumns("isFormula").DataBodyRange.Cells(i))
+'            sFormula = .ListColumns("Formula").DataBodyRange.Cells(i)
+'
+'            If Not SheetExists(wkb, sSheetName) Then
+'                Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+'                sht.Name = sSheetName
+'            End If
+'
+'            'Increment j as header col counter if writing to the table name as previous iteration
+'            If i = 1 Then
+'                j = 1
+'            ElseIf sListObjName = .ListColumns("ListObjectName").DataBodyRange.Cells(i - 1) Then
+'                j = j + 1
+'            Else
+'                j = 1
+'            End If
+'
+'            Set loTargetListObj = wkb.Worksheets(sSheetName).ListObjects(sListObjName)
+'            loTargetListObj.HeaderRowRange.Cells(j) = sListObjHeader
+'
+'            If bIsFormula Then
+'                loTargetListObj.ListColumns(sListObjHeader).DataBodyRange.Formula = sFormula
+'            End If
+'
+'
+'        Next i
+'    End With
+'
+'End Sub
 
 
 Function CreateNewWorkbookWithOneSheet() As Workbook

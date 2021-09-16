@@ -31,11 +31,13 @@ Sub test2()
 End Sub
 
 
-Sub testReadRange()
+Sub TestCreateStorage()
 
-    Dim a
-    
-    a = WorksheetFunction.Transpose(WorksheetFunction.Transpose(Selection.Value))
+    Dim a As zLIB_ListStorage
 
+    Set a = New zLIB_ListStorage
+    a.CreateStorage ActiveWorkbook, "TestStore3", Array("Header1", "Header2", "Header3", "Header4")
+
+    Set a = Nothing
 
 End Sub

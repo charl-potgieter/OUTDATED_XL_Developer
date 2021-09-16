@@ -1,1 +1,1 @@
-SheetName|ListObjectName|ListObjectHeader|ValueXL_Developer|tbl_Data|Item|Last utilised folder for creating spreadsheet from metadataXL_Developer|tbl_Data|Item|XL_Developer|tbl_Data|Item|XL_Developer|tbl_Data|Item|XL_Developer|tbl_Data|Value|C:\Users\charl\Dropbox\Temp\TestMetaDataExportXL_Developer|tbl_Data|Value|XL_Developer|tbl_Data|Value|XL_Developer|tbl_Data|Value|
+SheetName|ListObjectName|ListObjectHeader|Value

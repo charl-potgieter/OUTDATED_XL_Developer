@@ -23,6 +23,14 @@ Sub CreateSpreadsheetFromMetadata()
     Dim StorageListObjFieldFormats
     Dim StorageOther
     Dim SheetNames As Variant
+    Dim TargetStorageHeaders As Variant
+    Dim FileName As String
+    Dim i As Integer
+    Dim j As Integer
+    Dim lo As ListObject
+    Dim ColumnHasFormula As Boolean
+    Dim ColumnFormula As String
+    Dim TargetSheetStorage As zLIB_ListStorage
     Const StorageRefOFLastFolder As String = _
         "Last utilised folder for creating spreadsheet from metadata"
 
@@ -42,7 +50,7 @@ Sub CreateSpreadsheetFromMetadata()
 
     Set wkb = CreateNewWorkbookWithOneSheet
     Set InitialSheetOnWorkbookCreation = wkb.Sheets(1)
-    FormatCoverSheet InitialSheetOnWorkbookCreation
+    
 
     'Assign storage for the relevant spreadsheet metadata
     Set StorageListObjFields = CreateListObjFieldStorage( _
@@ -63,7 +71,28 @@ Sub CreateSpreadsheetFromMetadata()
         wkb)
 
     SheetNames = GetSheetNames(StorageListObjFields)
-    AddSheetsToWorkbook wkb, SheetNames
+    Set TargetSheetStorage = New zLIB_ListStorage
+    FileName = GetCreatorFileName(StorageOther)
+    For i = LBound(SheetNames) To UBound(SheetNames)
+        TargetStorageHeaders = GetListObjHeaders(StorageListObjFields, SheetNames(i))
+        For j = LBound(TargetStorageHeaders) To UBound(TargetStorageHeaders)
+            ColumnHasFormula = GetHeaderHasFormula(StorageListObjFields, _
+                SheetNames(i), TargetStorageHeaders(j))
+                If ColumnHasFormula Then
+                    ColumnFormula = GetColumnFormula(StorageListObjFields, _
+                        SheetNames(i), TargetStorageHeaders(j))
+                   
+                   'START HERE
+                   
+                   
+                End If
+        Next j
+        TargetSheetStorage.CreateStorage wkb, SheetNames(i), TargetStorageHeaders
+    Next i
+    
+    FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
+    
+    
     
 
 '    CreateListObjectsFromMetadata wkb, loListObjFields

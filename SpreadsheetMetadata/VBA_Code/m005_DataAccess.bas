@@ -1,4 +1,5 @@
 Attribute VB_Name = "m005_DataAccess"
+
 Option Explicit
 
 Function CreateListObjFieldStorage(ByVal SourceFilePath As String, _
@@ -103,4 +104,68 @@ Private Sub CreatePipeDelimitedPowerQuery(ByVal wkb As Workbook, _
     wkb.Queries.Add QueryName, QueryString
 
 End Sub
+
+
+
+Function GetCreatorFileName(ByVal StorageOther As Variant) As String
+
+    Dim Storage As zLIB_ListStorage
+    Set Storage = StorageOther
+    GetCreatorFileName = Storage.Xlookup("FileName", "[Item]", "[Value]")
+    Set Storage = Nothing
+
+End Function
+
+
+
+Function GetListObjName(ByVal StorageListObjFields As Variant, _
+    ByVal SheetName As String) As String
+
+    Dim Storage As zLIB_ListStorage
+    Set Storage = StorageListObjFields
+    GetListObjName = Storage.Xlookup(SheetName, "[SheetName]", "[ListObjectName]")
+    Set Storage = Nothing
+
+End Function
+
+
+Function GetListObjHeaders(ByVal StorageListObjFields As Variant, _
+    ByVal SheetName As String) As Variant
+
+    Dim Storage As zLIB_ListStorage
+    Set Storage = StorageListObjFields
+    
+    Storage.Filter "[SheetName] = """ & SheetName & """"
+    GetListObjHeaders = Storage.ItemsInField(sFieldName:="ListObjectHeader", bFiltered:=True)
+
+End Function
+
+
+Function GetHeaderHasFormula(ByVal StorageListObjFields As Variant, _
+    ByVal SheetName As String, ByVal Header As String) As Boolean
+
+    Dim Storage As zLIB_ListStorage
+    
+    Set Storage = StorageListObjFields
+    GetHeaderHasFormula = Storage.Xlookup(SheetName & Header, _
+        "[SheetName] & [ListObjectHeader]", "[IsFormula]")
+    
+    Set Storage = Nothing
+
+End Function
+
+
+
+Function GetColumnFormula(ByVal StorageListObjFields As Variant, _
+    ByVal SheetName As String, ByVal Header As String) As String
+
+    Dim Storage As zLIB_ListStorage
+    
+    Set Storage = StorageListObjFields
+    GetColumnFormula = Storage.Xlookup(SheetName & Header, _
+        "[SheetName] & [ListObjectHeader]", "[Formula]")
+    
+    Set Storage = Nothing
+
+End Function
 

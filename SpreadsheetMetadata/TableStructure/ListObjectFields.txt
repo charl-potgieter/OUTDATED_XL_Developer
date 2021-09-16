@@ -1,1 +1,1 @@
-SheetName|ListObjectName|ListObjectHeader|IsFormula|FormulaXL_Developer|tbl_Data|Item|False|XL_Developer|tbl_Data|Value|False|
+SheetName|ListObjectName|ListObjectHeader|IsFormula|Formula

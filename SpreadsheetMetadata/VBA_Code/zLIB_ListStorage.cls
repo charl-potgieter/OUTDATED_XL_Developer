@@ -522,7 +522,7 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As
     Dim lo As ListObject
     
     For i = LBound(Headings) To UBound(Headings)
-        sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
+        sht.Cells(iTableRowStart, iTableColStart + i - LBound(Headings)).Value = Headings(i)
     Next i
 
     Set lo = sht.ListObjects.Add(xlSrcRange, _
@@ -552,7 +552,7 @@ Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Hea
     iTableColStart = iUnfilteredTableColStart + (UBound(Headings)) + (iGapBetweenTables + 1)
     
     For i = LBound(Headings) To UBound(Headings)
-        sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
+        sht.Cells(iTableRowStart, iTableColStart + i - LBound(Headings)).Value = Headings(i)
     Next i
 
     Set lo = sht.ListObjects.Add(xlSrcRange, _
