@@ -78,7 +78,7 @@ Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
         Set this.ListObj = this.Sheet.ListObjects.Add( _
             SourceType:=0, _
             Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & PowerQueryName & ";Extended Properties=""""", _
-            Destination:=Range("$B$7"))
+            Destination:=Range("$B$5"))
             
         With this.ListObj
             .QueryTable.CommandType = xlCmdSql
@@ -444,11 +444,12 @@ Public Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As Strin
 End Function
 
 
-Public Function IsEmpty() As Boolean
+Public Function IsEmpty(Optional ByVal bFiltered As Boolean = False) As Boolean
 
     Dim test As Double
     On Error Resume Next
-    test = this.ListObj.DataBodyRange.Rows.Count
+    
+    test = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     IsEmpty = (Err.Number <> 0)
     On Error GoTo 0
     
@@ -517,7 +518,7 @@ End Sub
 Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
-    Const iTableRowStart As Integer = 7
+    Const iTableRowStart As Integer = 5
     Const iTableColStart As Integer = 2
     Dim lo As ListObject
     

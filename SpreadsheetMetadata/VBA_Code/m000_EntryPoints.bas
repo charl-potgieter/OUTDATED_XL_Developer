@@ -24,13 +24,17 @@ Sub CreateSpreadsheetFromMetadata()
     Dim StorageOther
     Dim SheetNames As Variant
     Dim TargetStorageHeaders As Variant
+    Dim ColumnValues As Variant
     Dim FileName As String
     Dim i As Integer
     Dim j As Integer
-    Dim lo As ListObject
+    Dim k As Long
+    Dim rng As Range
     Dim ColumnHasFormula As Boolean
-    Dim ColumnFormula As String
+    Dim TableValues() As Dictionary
     Dim TargetSheetStorage As zLIB_ListStorage
+    Dim qry As WorkbookQuery
+    Dim cn As WorkbookConnection
     Const StorageRefOFLastFolder As String = _
         "Last utilised folder for creating spreadsheet from metadata"
 
@@ -69,36 +73,75 @@ Sub CreateSpreadsheetFromMetadata()
         sFolderPath & Application.PathSeparator & "Other" & _
             Application.PathSeparator & "OtherData.txt", _
         wkb)
-
+    
+    'Create table storage and set formulas
     SheetNames = GetSheetNames(StorageListObjFields)
     Set TargetSheetStorage = New zLIB_ListStorage
-    FileName = GetCreatorFileName(StorageOther)
     For i = LBound(SheetNames) To UBound(SheetNames)
+    
         TargetStorageHeaders = GetListObjHeaders(StorageListObjFields, SheetNames(i))
+        TargetSheetStorage.CreateStorage wkb, SheetNames(i), TargetStorageHeaders
+    
+        'Set Values
+        TableValues = GetTableValues(StorageListObjFieldValues, SheetNames(i))
+        For k = LBound(TableValues) To UBound(TableValues)
+            TargetSheetStorage.InsertFromDictionary TableValues(k)
+        Next k
+        
+        'Ensure at least one row when setting formats and formulas
+        If TargetSheetStorage.NumberOfRecords = 0 Then
+            TargetSheetStorage.AddBlankRow
+        End If
+        
+        
         For j = LBound(TargetStorageHeaders) To UBound(TargetStorageHeaders)
+            
+            'Set number format
+            TargetSheetStorage.ListObj.ListColumns(TargetStorageHeaders(j)). _
+                DataBodyRange.NumberFormat = GetColumnNumberFormat(StorageListObjFieldFormats, _
+                SheetNames(i), TargetStorageHeaders(j))
+                        
+            'Set font colours
+            TargetSheetStorage.ListObj.ListColumns(TargetStorageHeaders(j)). _
+                DataBodyRange.Font.Color = GetColumnFontColour(StorageListObjFieldFormats, _
+                SheetNames(i), TargetStorageHeaders(j))
+            
+            'Set formulas
             ColumnHasFormula = GetHeaderHasFormula(StorageListObjFields, _
                 SheetNames(i), TargetStorageHeaders(j))
-                If ColumnHasFormula Then
-                    ColumnFormula = GetColumnFormula(StorageListObjFields, _
-                        SheetNames(i), TargetStorageHeaders(j))
-                   
-                   'START HERE
-                   
-                   
-                End If
+            If ColumnHasFormula Then
+                TargetSheetStorage.ListObj.ListColumns(TargetStorageHeaders(j)). _
+                    DataBodyRange.Formula = GetColumnFormula(StorageListObjFields, _
+                    SheetNames(i), TargetStorageHeaders(j))
+            End If
+            
         Next j
-        TargetSheetStorage.CreateStorage wkb, SheetNames(i), TargetStorageHeaders
+        
+        'Do below to ensure values are formatted per cell format
+        'Cell format put in place after values to avoid issues with blank cells.
+        'A bit messy but seems to be simplest approach
+        For Each rng In TargetSheetStorage.ListObj.DataBodyRange
+            rng.Formula = rng.Formula
+        Next rng
+        
     Next i
     
+    FileName = GetCreatorFileName(StorageOther)
     FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
     
-    
-    
+        
+    'Cleanup
+    DeleteStorage StorageListObjFields
+    DeleteStorage StorageListObjFieldValues
+    DeleteStorage StorageListObjFieldFormats
+    DeleteStorage StorageOther
+    For Each qry In wkb.Queries
+        qry.Delete
+    Next qry
+    For Each cn In wkb.Connections
+        cn.Delete
+    Next cn
 
-'    CreateListObjectsFromMetadata wkb, loListObjFields
-''    PopulateListObjectValues wkb
-'    SetListObjectFormats wkb
-'
 
 '    'Delete temp sheets queries and connections
 '    For i = LBound(ArrayOfSourceFiles) To UBound(ArrayOfSourceFiles)
@@ -106,6 +149,7 @@ Sub CreateSpreadsheetFromMetadata()
 '        wkb.Queries(ArrayOfSourceFiles(i)).Delete
 '        wkb.Connections(1).Delete  'Always delete 1st as index decreases as connections are deleted
 '    Next i
+    Set TargetSheetStorage = Nothing
 
 
     'Import VBA code

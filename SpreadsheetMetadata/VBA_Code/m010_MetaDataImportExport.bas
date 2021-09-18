@@ -127,22 +127,23 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathA
     
     Set ListStorage = New zLIB_ListStorage
     
+    'Write value row by row
     For Each sht In wkb.Worksheets
         StorageAssigned = ListStorage.AssignStorage(wkb, sht.Name)
         If StorageAssigned Then
             Set lo = ListStorage.ListObj
             If ListStorage.IsEmpty Then ListStorage.AddBlankRow
-            For i = 1 To lo.HeaderRowRange.Columns.Count
-                If Not (lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula) Then
-                    For j = 1 To lo.DataBodyRange.Rows.Count
+            For i = 1 To lo.DataBodyRange.Rows.Count
+                For j = 1 To lo.HeaderRowRange.Columns.Count
+                    If Not (lo.ListColumns(j).DataBodyRange.Cells(1).HasFormula) Then
                         sRowToWrite = vbCr & _
                             sht.Name & "|" & _
                             lo.Name & "|" & _
-                            lo.ListColumns(i).Name & "|" & _
-                            lo.ListColumns(i).DataBodyRange.Cells(j).Value
+                            lo.ListColumns(j).Name & "|" & _
+                            lo.ListColumns(j).DataBodyRange.Cells(i).Value
                             Print #iFileNo, sRowToWrite;
-                    Next j
-                End If
+                    End If
+                Next j
             Next i
         End If
     Next sht
@@ -176,15 +177,15 @@ Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook, ByVal sFilePathA
     For Each sht In wkb.Worksheets
         StorageAssigned = ListStorage.AssignStorage(wkb, sht.Name)
         If StorageAssigned Then
-            Set lo = ListStorage.ListObj
             If ListStorage.IsEmpty Then ListStorage.AddBlankRow
+            Set lo = ListStorage.ListObj
             For i = 1 To lo.HeaderRowRange.Columns.Count
                 sRowToWrite = vbCr & _
                     sht.Name & "|" & _
                     lo.Name & "|" & _
                         lo.HeaderRowRange.Cells(i) & "|" & _
                         lo.ListColumns(i).DataBodyRange.Cells(1).NumberFormat & "|" & _
-                        GetCellFontColour(lo.ListColumns(i).DataBodyRange.Cells(1))
+                        lo.ListColumns(i).DataBodyRange.Cells(1).Font.Color
                 Print #iFileNo, sRowToWrite;
             Next i
         End If

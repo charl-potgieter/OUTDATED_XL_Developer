@@ -1,18 +1,5 @@
-EntrrPoints.CreateSpreadsheetFromMetadata
- - search for 'StartHere
-
-SpreadsheetMetaData saving - maybe just save items used in spreadsheetcreator (nothing power pivot related)
- * Worthwhile using ListObject storage class for the tables for spreadsheetcreation - could make the code a lot cleaner. 
-    --> Create method to createliststorage from PowerQuery (powerquery needs to already exist)
-    --> Create a hidden variable (or property?) to check is the strorage object is power query based.  IF it is do not allow certain functions to run (e.g. add new items, replace with filtered date)
-
 * Change the front table on XL_Developer to a zLib_ListStorage (table currently used for only saving last folder)
-
- * Have a first sheet with file name --> currently I am saving filename in witht the table data --> this doesnt work as the spreadsheet may not necessarily contain tables
- * Maybe get rid of the heading and category --> just keep it simple, especially given broadening of reporting sheet concept that I dont want to bring into developer spreadsheet
- * Zero gridlines on each sheet when it is created
- * Table (listobject) in fixed position
- * Can I build files direct from Github?  Will it work with forms (which is a binary?)
+ * Can I build files direct from Github?  Will it work with forms (which is a binary)
  * Remove Generate Spreadsheet metadata from SpreadsheetBI
 
 Check that the createspreadsheet still works if there are no tables in the workbook

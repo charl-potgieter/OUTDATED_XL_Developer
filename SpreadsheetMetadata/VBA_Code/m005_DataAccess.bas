@@ -169,3 +169,86 @@ Function GetColumnFormula(ByVal StorageListObjFields As Variant, _
 
 End Function
 
+
+Function GetColumnNumberFormat(ByVal StorageListObjFieldFormats As Variant, _
+    ByVal SheetName As String, ByVal Header As String) As String
+
+    Dim Storage As zLIB_ListStorage
+    
+    Set Storage = StorageListObjFieldFormats
+    GetColumnNumberFormat = Storage.Xlookup(SheetName & Header, _
+        "[SheetName] & [ListObjectHeader]", "[NumberFormat]")
+    
+    Set Storage = Nothing
+
+End Function
+
+
+Function GetColumnFontColour(ByVal StorageListObjFieldFormats As Variant, _
+    ByVal SheetName As String, ByVal Header As String) As String
+
+    Dim Storage As zLIB_ListStorage
+    
+    Set Storage = StorageListObjFieldFormats
+    GetColumnFontColour = Storage.Xlookup(SheetName & Header, _
+        "[SheetName] & [ListObjectHeader]", "[FontColour]")
+    
+    Set Storage = Nothing
+
+End Function
+
+
+Function GetTableValues(ByVal StorageListObjFieldValues As Variant, _
+    ByVal SheetName As String) As Dictionary()
+
+    Dim Storage As zLIB_ListStorage
+    Dim dict() As Dictionary
+    Dim CurrentDictArrayIndex As Long
+    Dim CurrentDataRow As Long
+    Dim Header As String
+    Dim Value As Variant
+    Dim NumberOfDataRows As Long
+    Dim MaxAllowAlowableDataRows As Long
+
+    MaxAllowAlowableDataRows = ActiveSheet.Rows.Count
+    ReDim dict(0 To MaxAllowAlowableDataRows - 1)
+    Set Storage = StorageListObjFieldValues
+
+    Storage.Filter "[SheetName] = """ & SheetName & """"
+    CurrentDictArrayIndex = 0
+    CurrentDataRow = 1
+    NumberOfDataRows = Storage.NumberOfRecords(bFiltered:=True)
+    
+    
+    If NumberOfDataRows <> 0 Then
+        Set dict(CurrentDictArrayIndex) = New Dictionary
+        Do While CurrentDataRow <= NumberOfDataRows
+            Header = Storage.FieldItemByIndex( _
+                sFieldName:="ListObjectHeader", _
+                i:=CurrentDataRow, _
+                bFiltered:=True)
+            Value = Storage.FieldItemByIndex( _
+                sFieldName:="Value", _
+                i:=CurrentDataRow, _
+                bFiltered:=True)
+            If dict(CurrentDictArrayIndex).Exists(Header) Then
+                CurrentDictArrayIndex = CurrentDictArrayIndex + 1
+                Set dict(CurrentDictArrayIndex) = New Dictionary
+            End If
+            dict(CurrentDictArrayIndex).Add Header, Value
+            CurrentDataRow = CurrentDataRow + 1
+        Loop
+    End If
+    ReDim Preserve dict(0 To CurrentDictArrayIndex)
+
+    Set Storage = Nothing
+    GetTableValues = dict
+
+End Function
+
+
+Sub DeleteStorage(ByRef Storage)
+
+    Storage.Delete
+
+End Sub
