@@ -1,7 +1,7 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
-Sub GenerateSpreadsheetMetadataActiveWorkbook() 'Optional control As IRibbonControl
+Sub GenerateSpreadsheetMetadataActiveWorkbook(Optional control As IRibbonControl)
 
     StandardEntry
     GenerateSpreadsheetMetadata ActiveWorkbook
@@ -10,7 +10,7 @@ Sub GenerateSpreadsheetMetadataActiveWorkbook() 'Optional control As IRibbonCont
 
 End Sub
 
-Sub CreateSpreadsheetFromMetadata()
+Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
 'Generates spreadsheet from metadata stored in text files in selected folder
 
 
@@ -142,15 +142,7 @@ Sub CreateSpreadsheetFromMetadata()
         cn.Delete
     Next cn
 
-
-'    'Delete temp sheets queries and connections
-'    For i = LBound(ArrayOfSourceFiles) To UBound(ArrayOfSourceFiles)
-'        wkb.Sheets(ArrayOfSourceFiles(i)).Delete
-'        wkb.Queries(ArrayOfSourceFiles(i)).Delete
-'        wkb.Connections(1).Delete  'Always delete 1st as index decreases as connections are deleted
-'    Next i
     Set TargetSheetStorage = Nothing
-
 
     'Import VBA code
     ImportVBAModules wkb, sFolderPath & Application.PathSeparator & "VBA_Code"
@@ -168,7 +160,7 @@ End Sub
 
 
 
-Sub SaveStandardCodeLibraryAndImportIntoCurrentWorkbook() '(Optional control As IRibbonControl)
+Sub SaveStandardCodeLibraryAndImportIntoCurrentWorkbook(Optional control As IRibbonControl)
 
     Dim sVbaCodePath As String
     Dim ModuleNames() As String

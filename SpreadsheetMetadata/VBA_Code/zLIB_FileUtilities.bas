@@ -5,6 +5,7 @@ Option Private Module
 '-----------------------------------------------------------------------------
 '   Requires reference to Microsoft Scripting runtime
 '-----------------------------------------------------------------------------
+'
 
 Function FolderExists(ByVal sFolderPath) As Boolean
 'Requires reference to Microsoft Scripting runtime

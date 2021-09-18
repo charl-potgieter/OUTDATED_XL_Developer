@@ -3,13 +3,16 @@
     <tabs>
       <tab id="XLDeveloper" label="XL Developer" insertAfterMso="TabDeveloper">
 
-        <group id="VbaTools" label="VBA tools">
+        <group id="DevTools" label="Dev tools">
             
             <button id="customButton1" label="Save and import code libraries" size="large" onAction="SaveStandardCodeLibraryAndImportIntoCurrentWorkbook" imageMso="Refresh"  
             supertip="Saves code in ExcelVbaCodeLibrary.xlam active add in and imports or refreshes this code into active workbook (replaces any modules in active workbook which have same name)"/>
             
-            <button id="customButton4" label="Export code (deletes previous)" size="large" onAction="ExportActiveWorkbookVbaCode" imageMso="Export"  screentip="Export Code" 
-            supertip="Saves down VBA code in subolder VBA_Code of active workbook location.  NOTE: this overwrites / deletes any existing files in this subfolder"/>
+            <button id="customButton2" label="Export spreadsheet metadata (deletes previous)" size="large" onAction="GenerateSpreadsheetMetadataActiveWorkbook" imageMso="Export"  screentip="Export metadata" 
+            supertip="Saves down table details and VBA code in subfolder of active workbook location.  NOTE: this overwrites / deletes any existing files in this subfolder"/>
+            
+            <button id="customButton3" label="Generate spreadsheet from metadata" size="large" onAction="CreateSpreadsheetFromMetadata" imageMso="Import"  screentip="Create spreadsheet from metadata" 
+            supertip="Creates new spreadsheet from selected metadata folder"/>
             
         </group>
             

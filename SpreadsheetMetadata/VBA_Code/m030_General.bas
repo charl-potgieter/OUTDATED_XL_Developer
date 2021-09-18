@@ -20,7 +20,6 @@ Function RangeOfStoredData(ByVal ItemDescription As String) As Range
 End Function
 
 
-
 Function StoredDataValue(ByVal ItemDescription As String)
 
     Dim lo As ListObject
