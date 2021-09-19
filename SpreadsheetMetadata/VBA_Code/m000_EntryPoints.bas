@@ -38,7 +38,6 @@ Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
     Const StorageRefOFLastFolder As String = _
         "Last utilised folder for creating spreadsheet from metadata"
 
-
     StandardEntry
     
     'Get folder containing metadata
@@ -55,6 +54,8 @@ Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
     Set wkb = CreateNewWorkbookWithOneSheet
     Set InitialSheetOnWorkbookCreation = wkb.Sheets(1)
     
+    'Import VBA code
+    ImportVBAModules wkb, sFolderPath & Application.PathSeparator & "VBA_Code"
 
     'Assign storage for the relevant spreadsheet metadata
     Set StorageListObjFields = CreateListObjFieldStorage( _
@@ -73,6 +74,11 @@ Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
         sFolderPath & Application.PathSeparator & "Other" & _
             Application.PathSeparator & "OtherData.txt", _
         wkb)
+    
+    FileName = GetCreatorFileName(StorageOther)
+    FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
+    
+    If StorageIsEmpty(StorageListObjFields) Then GoTo ExitPoint
     
     'Create table storage and set formulas
     SheetNames = GetSheetNames(StorageListObjFields)
@@ -126,10 +132,8 @@ Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
         
     Next i
     
-    FileName = GetCreatorFileName(StorageOther)
-    FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
-    
-        
+
+ExitPoint:
     'Cleanup
     DeleteStorage StorageListObjFields
     DeleteStorage StorageListObjFieldValues
@@ -143,9 +147,6 @@ Sub CreateSpreadsheetFromMetadata(Optional control As IRibbonControl)
     Next cn
 
     Set TargetSheetStorage = Nothing
-
-    'Import VBA code
-    ImportVBAModules wkb, sFolderPath & Application.PathSeparator & "VBA_Code"
         
     wkb.Activate
     ActiveWindow.WindowState = xlMaximized

@@ -1,6 +1,5 @@
-* Change the front table on XL_Developer to a zLib_ListStorage (table currently used for only saving last folder)
- * Can I build files direct from Github?  Will it work with forms (which is a binary)
- * Remove Generate Spreadsheet metadata from SpreadsheetBI
+* Change the front table on XL_Developer to a zLib_ListStorage ? (table currently used for only saving last folder)
+ 
 
 Check that the createspreadsheet still works if there are no tables in the workbook
 

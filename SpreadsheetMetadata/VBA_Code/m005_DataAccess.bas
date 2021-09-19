@@ -79,7 +79,9 @@ Function GetSheetNames(ByVal ListgObjFieldStorage As Variant) As Variant
     Dim Storage As zLIB_ListStorage
     
     Set Storage = ListgObjFieldStorage
-    GetSheetNames = Storage.ItemsInField(sFieldName:="SheetName", bUnique:=True)
+    If Storage.NumberOfRecords <> 0 Then
+        GetSheetNames = Storage.ItemsInField(sFieldName:="SheetName", bUnique:=True)
+    End If
     Set Storage = Nothing
 
 End Function
@@ -252,3 +254,10 @@ Sub DeleteStorage(ByRef Storage)
     Storage.Delete
 
 End Sub
+
+
+Function StorageIsEmpty(ByVal Storage) As Boolean
+
+    StorageIsEmpty = Storage.NumberOfRecords = 0
+
+End Function

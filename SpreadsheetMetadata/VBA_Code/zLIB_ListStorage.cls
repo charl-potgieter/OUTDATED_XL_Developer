@@ -85,7 +85,6 @@ Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
             .QueryTable.CommandText = Array("SELECT * FROM [" & PowerQueryName & "]")
             .QueryTable.Refresh BackgroundQuery:=False
             .Name = "tbl_" & sName
-            .DataBodyRange.EntireColumn.NumberFormat = "@"
         End With
 
         FormatStorageListObject this.ListObj
