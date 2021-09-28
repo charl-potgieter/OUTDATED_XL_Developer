@@ -1,3 +1,13 @@
+* Potentially add powerqueries to the generation of metdata (and the spreadsheet creation)
+
+To capture data e.g. spreadsheet report format (in Spreadsheet BI)
+  - Could create a data capture sheet class
+  - this is most probably something I want to do in XL Devloper
+  - four columns item, validation type, validation and value
+   - All but the value column are locked and protected
+  - macro generates button to validate and capture
+  - property dictates where the data is written
+
 * Change the front table on XL_Developer to a zLib_ListStorage ? (table currently used for only saving last folder)
  
 

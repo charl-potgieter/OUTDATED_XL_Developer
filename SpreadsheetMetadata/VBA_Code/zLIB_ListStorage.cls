@@ -145,6 +145,11 @@ Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Lo
     
 End Property
 
+Public Property Get Sheet() As Worksheet
+    Set Sheet = this.Sheet
+End Property
+
+
 Public Sub AddBlankRow()
 
     If Not this.CreatedFromPowerQuery Then
@@ -497,6 +502,8 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
     
     sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
     sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+    sht.Names.Add Name:="ReturnToIndex", RefersTo:="=$B$3"
+    sht.Names.Add Name:="DefaultCursorLocation", RefersTo:="=$A$2"
     
     With sht.Range("SheetHeading")
         .Value = sht.Name
@@ -517,7 +524,7 @@ End Sub
 Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
-    Const iTableRowStart As Integer = 5
+    Const iTableRowStart As Integer = 7
     Const iTableColStart As Integer = 2
     Dim lo As ListObject
     
